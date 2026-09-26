@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:fragment="page(title, content)" lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title th:text="${title} + ' · Rounds'">Rounds</title>
+  <link rel="stylesheet" th:href="@{/css/rounds.css}">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 28'%3E%3Crect width='28' height='28' rx='7' fill='%230A5C3F'/%3E%3Cpath d='M8 19 L14 9 L20 19' stroke='white' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3Ccircle cx='14' cy='19' r='2' fill='%23D98200'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 12 L8 4 L13 12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="12" r="1.6" fill="#D98200"/></svg></div>
+      <div><b>Rounds</b><span th:text="${me != null and me.role.name() == 'TEACHER'} ? 'Teacher desk' : 'Student desk'">Teacher desk</span></div>
+    </div>
+
+    <nav class="nav" th:if="${me != null and me.role.name() == 'TEACHER'}">
+      <div class="nav-group"><div class="eyebrow">Teaching</div>
+        <a th:href="@{/teacher}" th:classappend="${nav=='overview'}?'active'"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Overview</a>
+        <a th:href="@{/teacher/tests}" th:classappend="${nav=='tests'}?'active'"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>Tests</a>
+        <a th:href="@{/teacher/classes}" th:classappend="${nav=='classes'}?'active'"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 0 1 6 5"/></svg>Classes</a>
+        <a th:href="@{/teacher/results}" th:classappend="${nav=='results'}?'active'"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Results</a>
+      </div>
+      <div class="nav-group"><div class="eyebrow">Department</div>
+        <a href="#guide"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5M12 17h.01"/></svg>Help centre</a>
+      </div>
+    </nav>
+
+    <nav class="nav" th:if="${me != null and me.role.name() == 'STUDENT'}">
+      <div class="nav-group"><div class="eyebrow">Learning</div>
+        <a th:href="@{/student}" th:classappend="${nav=='overview'}?'active'"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Available tests</a>
+        <a th:href="@{/student/history}" th:classappend="${nav=='history'}?'active'"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>My results</a>
+      </div>
+    </nav>
+
+    <div class="sidebar-foot" th:if="${me != null}">
+      <div class="row between"><span class="eyebrow">Signed in</span></div>
+      <div style="font-size:13px;font-weight:500;margin-top:4px" th:text="${me.name}">Name</div>
+      <div class="faint" style="font-size:12px" th:text="${me.email}">email</div>
+      <form th:action="@{/logout}" method="post" class="mt8"><button class="btn btn-sm btn-block">Sign out</button></form>
+    </div>
+  </aside>
+
+  <div>
+    <header class="topbar">
+      <div class="search"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input placeholder="Search tests, classes, students…"><kbd>⌘K</kbd></div>
+      <div class="avatar" th:if="${me != null}"><i th:text="${me.initials}">RE</i><span style="font-size:12.5px;font-weight:500" th:text="${me.name}">Name</span></div>
+    </header>
+    <nav class="mobile-nav" th:if="${me != null and me.role.name() == 'TEACHER'}">
+      <a th:href="@{/teacher}" th:classappend="${nav=='overview'}?'active'">Overview</a>
+      <a th:href="@{/teacher/tests}" th:classappend="${nav=='tests'}?'active'">Tests</a>
+      <a th:href="@{/teacher/classes}" th:classappend="${nav=='classes'}?'active'">Classes</a>
+      <a th:href="@{/teacher/results}" th:classappend="${nav=='results'}?'active'">Results</a>
+      <form th:action="@{/logout}" method="post" style="margin-left:auto"><button class="btn btn-sm btn-ghost">Sign out</button></form>
+    </nav>
+    <nav class="mobile-nav" th:if="${me != null and me.role.name() == 'STUDENT'}">
+      <a th:href="@{/student}" th:classappend="${nav=='overview'}?'active'">Tests</a>
+      <a th:href="@{/student/history}" th:classappend="${nav=='history'}?'active'">My results</a>
+      <form th:action="@{/logout}" method="post" style="margin-left:auto"><button class="btn btn-sm btn-ghost">Sign out</button></form>
+    </nav>
+    <main class="main">
+      <div th:if="${notice}" class="flash flash-ok" th:text="${notice}"></div>
+      <div th:if="${error}" class="flash flash-err" th:text="${error}"></div>
+      <th:block th:replace="${content}"/>
+    </main>
+  </div>
+</div>
+</body>
+</html>

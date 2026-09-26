@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('New test', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="mb16"><a class="faint" th:href="@{/teacher/tests}">← Tests</a><h1 class="serif page-title">Create a test</h1></div>
+  <div th:if="${#lists.isEmpty(classes)}" class="flash flash-err">You need a class first. <a th:href="@{/teacher/classes}">Create a class</a>.</div>
+  <div class="grid split" th:unless="${#lists.isEmpty(classes)}">
+    <div class="card">
+      <form th:action="@{/teacher/tests}" method="post">
+        <div class="field"><label class="f">Title</label><input class="input" name="title" required placeholder="e.g. Chapter 4 — Acids and bases"></div>
+        <div class="field"><label class="f">Description <span class="faint">(optional)</span></label><textarea class="input" name="description" rows="2" placeholder="Shown to students before they start."></textarea></div>
+        <div class="grid g2">
+          <div class="field"><label class="f">Class</label><select class="input" name="classId"><option th:each="c : ${classes}" th:value="${c.id}" th:text="${c.name}" th:selected="${classId == c.id}"></option></select></div>
+          <div class="field"><label class="f">Language</label><select class="input" name="language"><option value="ENGLISH">English</option><option value="URDU">Urdu (اردو)</option></select></div>
+          <div class="field"><label class="f">Time limit (minutes)</label><input class="input num" name="timeLimitMinutes" type="number" min="1" max="300" value="10" required></div>
+          <div class="field"><label class="f">Visibility</label><select class="input" name="visibility"><option value="CLASS_ONLY">Class only — enrolled students</option><option value="PUBLIC">Public — any signed-in student</option></select></div>
+        </div>
+        <div class="field"><label class="check"><input type="checkbox" name="allowOvertime" value="true"> Allow overtime — students may continue after the clock hits zero (submission is flagged)</label><div class="help">If unticked, the test auto-submits when time ends.</div></div>
+        <div class="row"><button class="btn btn-primary btn-lg">Create test & add questions</button><a class="btn btn-ghost" th:href="@{/teacher/tests}">Cancel</a></div>
+      </form>
+    </div>
+    <aside class="rail"><div class="card well" style="background:var(--paper-2)"><div class="eyebrow">Next</div><p class="mt8 muted">After creating, you'll add multiple-choice questions one at a time or import them in bulk from a PDF, Word or text file.</p></div></aside>
+  </div>
+</th:block>
+</body></html>

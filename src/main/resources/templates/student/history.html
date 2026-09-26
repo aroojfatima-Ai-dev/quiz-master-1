@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('My results', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="mb16"><div class="eyebrow">Learning</div><h1 class="serif page-title">My results</h1></div>
+  <div class="card flush">
+    <div th:if="${#lists.isEmpty(history)}" class="empty"><b>No results yet</b>Finish a test and it'll show up here.</div>
+    <table class="t" th:unless="${#lists.isEmpty(history)}">
+      <thead><tr><th>Test</th><th>Class</th><th class="r">Score</th><th>Percentage</th><th class="r">Time</th><th>Flags</th><th class="r">Submitted</th><th></th></tr></thead>
+      <tbody><tr th:each="a : ${history}">
+        <td style="font-weight:500" th:text="${a.test.title}"></td>
+        <td class="muted" th:text="${a.test.classRoom.name}"></td>
+        <td class="r num"><span th:text="${a.score}"></span>/<span th:text="${a.total}"></span></td>
+        <td><div class="row"><div class="bar" style="flex:1"><i th:style="'width:' + ${a.percentage} + '%'"></i></div><span class="num" style="width:44px;text-align:right" th:text="${@fmt.pct(a.percentage)}"></span></div></td>
+        <td class="r num" th:text="${a.durationLabel}"></td>
+        <td><span th:if="${a.overtime}" class="pill pill-live">Overtime</span> <span th:if="${a.autoSubmitted}" class="pill pill-neutral">Auto</span></td>
+        <td class="r faint num" th:text="${@fmt.dateTime(a.submittedAt)}"></td>
+        <td class="r"><a class="btn btn-sm" th:href="@{/student/attempts/{id}(id=${a.id})}">Review</a></td>
+      </tr></tbody>
+    </table>
+  </div>
+</th:block>
+</body></html>

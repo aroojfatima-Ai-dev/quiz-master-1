@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(${t.title}, ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div>
+      <a class="faint" th:href="@{/teacher/tests}">← Tests</a>
+      <h1 class="serif page-title" th:text="${t.title}"></h1>
+      <div class="row wrap mt8">
+        <span class="pill" th:classappend="${t.published}?'pill-pos':'pill-neutral'"><i class="dot" th:classappend="${t.published}?'pulse'"></i><span th:text="${t.published}?'Live for students':'Draft'"></span></span>
+        <span class="pill pill-info" th:text="${t.visibility.name()=='PUBLIC'?'Public':'Class only'}"></span>
+        <span class="muted" th:text="${t.classRoom.name} + ' · ' + (${t.language.name()=='URDU'}?'Urdu':'English') + ' · ' + ${t.timeLimitMinutes} + ' min' + (${t.allowOvertime}?' · overtime allowed':'')"></span>
+      </div>
+    </div>
+    <div class="row">
+      <a class="btn" th:href="@{/teacher/tests/{id}/results(id=${t.id})}">Results (<span th:text="${subCount}"></span>)</a>
+      <form th:action="@{/teacher/tests/{id}/publish(id=${t.id})}" method="post"><input type="hidden" name="value" th:value="${!t.published}"><button class="btn" th:classappend="${t.published}?'':'btn-board'" th:text="${t.published}?'Unpublish':'Publish'"></button></form>
+    </div>
+  </div>
+
+  <div class="grid split">
+    <div class="stack" style="gap:16px">
+      <!-- questions list -->
+      <div class="card flush">
+        <div class="card-head"><div><h3 class="title">Questions <span class="faint num" th:text="'(' + ${#lists.size(questions)} + ')'"></span></h3><p>Correct option is marked in green.</p></div></div>
+        <div th:if="${#lists.isEmpty(questions)}" class="empty"><b>No questions yet</b>Add one below or import from a file.</div>
+        <div class="qitem" th:each="q : ${questions}">
+          <div class="row" style="align-items:flex-start;gap:12px">
+            <div class="qnum num" th:text="${q.position}"></div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:14px;font-weight:500" th:classappend="${t.urdu}?'urdu'" th:text="${q.prompt}"></div>
+              <div class="opts" th:classappend="${t.urdu}?'urdu'">
+                <div th:classappend="${q.correct=='A'}?'ok'">A. <span th:text="${q.optionA}"></span></div>
+                <div th:classappend="${q.correct=='B'}?'ok'">B. <span th:text="${q.optionB}"></span></div>
+                <div th:classappend="${q.correct=='C'}?'ok'">C. <span th:text="${q.optionC}"></span></div>
+                <div th:classappend="${q.correct=='D'}?'ok'">D. <span th:text="${q.optionD}"></span></div>
+              </div>
+              <div class="row mt8" style="gap:6px">
+                <span class="pill pill-neutral" th:if="${q.topic}" th:text="${q.topic}"></span>
+                <span class="pill" th:classappend="${q.difficulty.name()=='HARD'}?'pill-warn':(${q.difficulty.name()=='EASY'}?'pill-pos':'pill-info')" th:text="${#strings.capitalize(#strings.toLowerCase(q.difficulty.name()))}"></span>
+                <details class="edit" style="margin-left:auto"><summary>Edit</summary>
+                  <form th:action="@{/teacher/tests/{id}/questions/{qid}/edit(id=${t.id},qid=${q.id})}" method="post" class="well mt8" style="min-width:min(520px,80vw)">
+                    <div class="field"><label class="f">Question</label><textarea class="input" name="prompt" rows="2" required th:text="${q.prompt}"></textarea></div>
+                    <div class="grid g2">
+                      <div class="field"><label class="f">A</label><input class="input" name="optionA" th:value="${q.optionA}" required></div>
+                      <div class="field"><label class="f">B</label><input class="input" name="optionB" th:value="${q.optionB}" required></div>
+                      <div class="field"><label class="f">C</label><input class="input" name="optionC" th:value="${q.optionC}" required></div>
+                      <div class="field"><label class="f">D</label><input class="input" name="optionD" th:value="${q.optionD}" required></div>
+                      <div class="field"><label class="f">Correct</label><select class="input" name="correct"><option th:each="l : ${ {'A','B','C','D'} }" th:value="${l}" th:text="${l}" th:selected="${q.correct==l}"></option></select></div>
+                      <div class="field"><label class="f">Difficulty</label><select class="input" name="difficulty"><option th:each="d : ${T(app.rounds.model.Question.Difficulty).values()}" th:value="${d}" th:text="${#strings.capitalize(#strings.toLowerCase(d.name()))}" th:selected="${q.difficulty==d}"></option></select></div>
+                    </div>
+                    <div class="field"><label class="f">Topic</label><input class="input" name="topic" th:value="${q.topic}"></div>
+                    <button class="btn btn-primary btn-sm">Save changes</button>
+                  </form>
+                </details>
+                <form th:action="@{/teacher/tests/{id}/questions/{qid}/delete(id=${t.id},qid=${q.id})}" method="post" onsubmit="return confirm('Remove this question?')"><button class="btn btn-ghost btn-sm" style="color:var(--red)">Remove</button></form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- add one -->
+      <div class="card" id="add">
+        <div class="card-head"><div><h3 class="title">Add a question</h3><p>Four options, one correct answer.</p></div></div>
+        <form th:action="@{/teacher/tests/{id}/questions(id=${t.id})}" method="post">
+          <div class="field"><label class="f">Question</label><textarea class="input" name="prompt" rows="2" required th:classappend="${t.urdu}?'urdu'" th:dir="${t.urdu}?'rtl':'ltr'"></textarea></div>
+          <div class="grid g2">
+            <div class="field"><label class="f">Option A</label><input class="input" name="optionA" required th:dir="${t.urdu}?'rtl':'ltr'"></div>
+            <div class="field"><label class="f">Option B</label><input class="input" name="optionB" required th:dir="${t.urdu}?'rtl':'ltr'"></div>
+            <div class="field"><label class="f">Option C</label><input class="input" name="optionC" required th:dir="${t.urdu}?'rtl':'ltr'"></div>
+            <div class="field"><label class="f">Option D</label><input class="input" name="optionD" required th:dir="${t.urdu}?'rtl':'ltr'"></div>
+          </div>
+          <div class="grid g3">
+            <div class="field"><label class="f">Correct answer</label><select class="input" name="correct"><option>A</option><option>B</option><option>C</option><option>D</option></select></div>
+            <div class="field"><label class="f">Difficulty</label><select class="input" name="difficulty"><option value="EASY">Easy</option><option value="MEDIUM" selected>Medium</option><option value="HARD">Hard</option></select></div>
+            <div class="field"><label class="f">Topic <span class="faint">(optional)</span></label><input class="input" name="topic" placeholder="e.g. Acids"></div>
+          </div>
+          <button class="btn btn-primary">Add question</button>
+        </form>
+      </div>
+
+      <!-- bulk import -->
+      <div class="card" id="import">
+        <div class="card-head"><div><h3 class="title">Bulk import</h3><p>Upload a PDF, Word (.docx) or .txt file — or paste text.</p></div></div>
+
+        <div th:if="${preview != null}">
+          <div class="flash flash-ok"><b th:text="${#lists.size(preview)}"></b> questions parsed. Review below, then confirm.</div>
+          <div class="card flush mb16" style="max-height:360px;overflow:auto">
+            <div class="qitem" th:each="q, s : ${preview}">
+              <div class="row" style="align-items:flex-start;gap:12px"><div class="qnum num" th:text="${s.count}"></div>
+                <div style="flex:1"><div style="font-weight:500" th:classappend="${t.urdu}?'urdu'" th:text="${q.prompt}"></div>
+                  <div class="opts" th:classappend="${t.urdu}?'urdu'">
+                    <div th:classappend="${q.correct=='A'}?'ok'">A. <span th:text="${q.optionA}"></span></div><div th:classappend="${q.correct=='B'}?'ok'">B. <span th:text="${q.optionB}"></span></div>
+                    <div th:classappend="${q.correct=='C'}?'ok'">C. <span th:text="${q.optionC}"></span></div><div th:classappend="${q.correct=='D'}?'ok'">D. <span th:text="${q.optionD}"></span></div>
+                  </div>
+                  <div class="row mt8" style="gap:6px"><span class="pill pill-neutral" th:if="${q.topic}" th:text="${q.topic}"></span><span class="pill pill-info" th:text="${#strings.capitalize(#strings.toLowerCase(q.difficulty.name()))}"></span></div>
+                </div></div>
+            </div>
+          </div>
+          <div class="row">
+            <form th:action="@{/teacher/tests/{id}/import/confirm(id=${t.id})}" method="post"><button class="btn btn-board">Import <span th:text="${#lists.size(preview)}"></span> questions</button></form>
+            <form th:action="@{/teacher/tests/{id}/import/discard(id=${t.id})}" method="post"><button class="btn btn-ghost">Discard</button></form>
+          </div>
+        </div>
+
+        <form th:unless="${preview != null}" th:action="@{/teacher/tests/{id}/import(id=${t.id})}" method="post" enctype="multipart/form-data">
+          <div class="field"><label class="f">File</label><input class="input" type="file" name="file" accept=".pdf,.docx,.txt" style="padding-top:6px"></div>
+          <div class="field"><label class="f">…or paste text</label><textarea class="input" name="pasted" rows="6" placeholder="1. Question text?&#10;A) first&#10;B) second&#10;C) third&#10;D) fourth&#10;Answer: B&#10;Topic: Algebra&#10;Difficulty: Easy"></textarea></div>
+          <button class="btn btn-primary">Parse & preview</button>
+        </form>
+
+        <details class="mt16"><summary class="muted" style="cursor:pointer">Format guide</summary>
+          <pre class="well mt8" style="font-size:12px;white-space:pre-wrap;margin:0">1. What is the capital of Pakistan?
+A) Lahore
+B) Karachi
+C) Islamabad
+D) Quetta
+Answer: C
+Topic: Geography        ← optional
+Difficulty: Easy        ← optional (Easy / Medium / Hard)
+
+2. Next question...
+A. ...  (A) ...  a: ... are all accepted
+Answer: A</pre>
+          <p class="help">Urdu text works too — use the same A/B/C/D markers, and "جواب: ب" style lines are accepted as "Answer: B" when written with Latin letters (جواب: B).</p>
+        </details>
+      </div>
+    </div>
+
+    <aside class="rail">
+      <div class="card">
+        <div class="card-head"><div><h3 class="title">At a glance</h3></div></div>
+        <div class="grid g2">
+          <div><div class="eyebrow">Questions</div><div class="serif kpi num mt8" th:text="${#lists.size(questions)}"></div></div>
+          <div><div class="eyebrow">Submissions</div><div class="serif kpi num mt8" th:text="${subCount}"></div></div>
+          <div><div class="eyebrow">Average</div><div class="serif num mt8" style="font-size:28px" th:text="${@fmt.pct1(avg)}"></div></div>
+          <div><div class="eyebrow">Class code</div><div class="roomcode sm num mt8" th:text="${t.classRoom.code}"></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="title">Settings</h3></div></div>
+        <form th:action="@{/teacher/tests/{id}/settings(id=${t.id})}" method="post">
+          <div class="field"><label class="f">Title</label><input class="input" name="title" th:value="${t.title}" required></div>
+          <div class="field"><label class="f">Description</label><textarea class="input" name="description" rows="2" th:text="${t.description}"></textarea></div>
+          <div class="field"><label class="f">Class</label><select class="input" name="classId"><option th:each="c : ${classes}" th:value="${c.id}" th:text="${c.name}" th:selected="${t.classRoom.id==c.id}"></option></select></div>
+          <div class="field"><label class="f">Language</label><select class="input" name="language"><option value="ENGLISH" th:selected="${!t.urdu}">English</option><option value="URDU" th:selected="${t.urdu}">Urdu (اردو)</option></select></div>
+          <div class="field"><label class="f">Time limit (min)</label><input class="input num" type="number" min="1" max="300" name="timeLimitMinutes" th:value="${t.timeLimitMinutes}"></div>
+          <div class="field"><label class="f">Visibility</label><select class="input" name="visibility"><option value="CLASS_ONLY" th:selected="${t.visibility.name()=='CLASS_ONLY'}">Class only</option><option value="PUBLIC" th:selected="${t.visibility.name()=='PUBLIC'}">Public</option></select></div>
+          <div class="field"><label class="check"><input type="checkbox" name="allowOvertime" value="true" th:checked="${t.allowOvertime}"> Allow overtime</label></div>
+          <button class="btn btn-block">Save settings</button>
+        </form>
+        <div class="hr"></div>
+        <form th:action="@{/teacher/tests/{id}/delete(id=${t.id})}" method="post" onsubmit="return confirm('Delete this test and all submissions?')"><button class="btn btn-danger btn-block">Delete test</button></form>
+      </div>
+    </aside>
+  </div>
+</th:block>
+</body></html>

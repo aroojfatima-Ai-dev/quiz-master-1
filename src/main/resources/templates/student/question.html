@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title th:text="'Q' + ${idx+1} + ' · ' + ${t.title}"></title><link rel="stylesheet" th:href="@{/css/rounds.css}"></head>
+<body class="stage">
+<div class="drain"><i id="drain"></i></div>
+<header class="stage-head">
+  <div><div class="eyebrow" th:text="${t.classRoom.name}"></div><div style="font-size:15px;font-weight:600" th:text="${t.title}"></div></div>
+  <span class="stage-code num" th:text="${t.classRoom.code}"></span>
+  <div class="eyebrow" style="align-self:center"><span th:text="${me.name}"></span></div>
+  <div class="clock num" id="clock" style="text-align:right">--:--</div>
+</header>
+
+<form class="stage-body" method="post" th:action="@{/student/attempts/{aid}/q/{idx}(aid=${a.id},idx=${idx})}" id="qform">
+  <section>
+    <div class="row wrap" style="gap:10px">
+      <span class="eyebrow">Question <span class="num" th:text="${idx+1}"></span> of <span class="num" th:text="${count}"></span></span>
+      <span class="pill" th:classappend="${q.difficulty.name()=='HARD'}?'pill-warn':(${q.difficulty.name()=='EASY'}?'pill-pos':'pill-info')" th:text="${#strings.capitalize(#strings.toLowerCase(q.difficulty.name()))}"></span>
+      <span class="pill pill-neutral" th:if="${q.topic}" th:text="${q.topic}"></span>
+      <span class="pill pill-live" id="otpill" style="display:none"><i class="dot pulse"></i>Overtime</span>
+    </div>
+    <h1 class="prompt" th:classappend="${t.urdu}?'urdu'" th:text="${q.prompt}"></h1>
+    <div class="answers">
+      <label th:classappend="${t.urdu}?'urdu'"><input type="radio" name="choice" value="A" th:checked="${selected=='A'}"><span class="key">A</span><span th:text="${q.optionA}"></span></label>
+      <label th:classappend="${t.urdu}?'urdu'"><input type="radio" name="choice" value="B" th:checked="${selected=='B'}"><span class="key">B</span><span th:text="${q.optionB}"></span></label>
+      <label th:classappend="${t.urdu}?'urdu'"><input type="radio" name="choice" value="C" th:checked="${selected=='C'}"><span class="key">C</span><span th:text="${q.optionC}"></span></label>
+      <label th:classappend="${t.urdu}?'urdu'"><input type="radio" name="choice" value="D" th:checked="${selected=='D'}"><span class="key">D</span><span th:text="${q.optionD}"></span></label>
+    </div>
+    <div class="stage-actions">
+      <button class="btn btn-stage btn-lg" name="action" value="prev" th:disabled="${idx==0}" formnovalidate>← Previous</button>
+      <button class="btn btn-amber btn-lg" name="action" value="next" th:unless="${isLast}">Save & next →</button>
+      <button class="btn btn-amber btn-lg" name="action" value="submit" th:if="${isLast}" onclick="return confirm('Submit the test now? You can\'t change answers afterwards.')">Submit test</button>
+      <button class="btn btn-stage btn-lg" name="action" value="submit" th:unless="${isLast}" onclick="return confirm('Submit the test now? Unanswered questions will be marked wrong.')" style="margin-left:auto">Finish early</button>
+    </div>
+    <p class="lock-note">Answers are saved when you press next. Keys 1–4 or A–D select an option; Enter continues.</p>
+  </section>
+
+  <aside class="stage-card">
+    <div class="eyebrow">Progress</div>
+    <div class="row between mt8"><span class="num" style="font-size:22px;font-family:var(--display)"><span th:text="${answeredCount}"></span> / <span th:text="${count}"></span></span><span style="color:rgba(255,255,255,.5);font-size:12px">answered</span></div>
+    <div class="progress-dots"><i th:each="i : ${#numbers.sequence(0, count-1)}" th:classappend="(${i==idx}?'cur ':'') + (${i<idx or (i<=idx and selected!=null)}?'done':'')"></i></div>
+    <div class="hr" style="background:rgba(255,255,255,.1)"></div>
+    <div class="eyebrow">Time limit</div>
+    <div class="mt8 num" style="font-size:14px"><span th:text="${t.timeLimitMinutes}"></span> minutes · <span th:text="${t.allowOvertime}?'overtime allowed':'auto-submits at zero'"></span></div>
+    <div class="hr" style="background:rgba(255,255,255,.1)"></div>
+    <div class="eyebrow">Marking</div>
+    <p class="mt8" style="font-size:12.5px;color:rgba(255,255,255,.6)">You'll see the correct answers only after you submit — the reveal comes at the end of the round, not question by question.</p>
+  </aside>
+</form>
+
+<script th:inline="javascript">
+  var remaining = /*[[${remaining}]]*/ 600;
+  var total = /*[[${totalSeconds}]]*/ 600;
+  var allowOvertime = /*[[${t.allowOvertime}]]*/ false;
+  var timeoutUrl = /*[[@{/student/attempts/{aid}/timeout(aid=${a.id})}]]*/ '';
+  var clock = document.getElementById('clock'), drain = document.getElementById('drain'), ot = document.getElementById('otpill');
+  var fired = false;
+  function fmt(s){ s = Math.abs(s); var m = Math.floor(s/60), r = s%60; return m + ':' + (r<10?'0':'') + r; }
+  function tick(){
+    if (remaining <= 0) {
+      if (!allowOvertime) { if (!fired) { fired = true; window.location.href = timeoutUrl; } return; }
+      clock.textContent = '+' + fmt(remaining); clock.classList.add('danger'); drain.style.width = '0%'; ot.style.display = 'inline-flex';
+    } else {
+      clock.textContent = fmt(remaining);
+      drain.style.width = (remaining/total*100) + '%';
+      if (remaining <= 30) { clock.classList.add('danger'); drain.classList.add('danger'); }
+    }
+    remaining--;
+  }
+  tick(); setInterval(tick, 1000);
+  document.addEventListener('keydown', function(e){
+    var map = {'1':'A','2':'B','3':'C','4':'D','a':'A','b':'B','c':'C','d':'D'};
+    var k = map[e.key.toLowerCase()];
+    if (k) { var el = document.querySelector('input[value="'+k+'"]'); if (el) el.checked = true; }
+    if (e.key === 'Enter') { e.preventDefault(); var b = document.querySelector('button[value="next"]'); if (b) b.click(); }
+  });
+</script>
+</body></html>

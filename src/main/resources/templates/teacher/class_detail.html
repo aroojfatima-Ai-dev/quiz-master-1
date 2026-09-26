@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page(${c.name}, ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div><a class="faint" th:href="@{/teacher/classes}">← Classes</a><h1 class="serif page-title" th:text="${c.name}"></h1><div class="muted" th:text="${c.subject}"></div></div>
+    <div class="row"><a class="btn btn-primary" th:href="@{/teacher/tests/new(classId=${c.id})}">Create test for this class</a></div>
+  </div>
+  <div class="grid split">
+    <div class="stack" style="gap:16px">
+      <div class="card flush">
+        <div class="card-head"><div><h3 class="title">Tests</h3></div></div>
+        <div th:if="${#lists.isEmpty(tests)}" class="empty"><b>No tests for this class</b></div>
+        <table class="t" th:unless="${#lists.isEmpty(tests)}">
+          <thead><tr><th>Test</th><th>Status</th><th>Visibility</th><th class="r">Questions</th><th class="r">Submissions</th></tr></thead>
+          <tbody><tr th:each="t : ${tests}">
+            <td><a class="rowlink" th:href="@{/teacher/tests/{id}(id=${t.id})}" th:text="${t.title}"></a><div class="sub"><span th:text="${t.language.name()=='URDU'?'Urdu':'English'}"></span> · <span th:text="${t.timeLimitMinutes}"></span> min</div></td>
+            <td><span class="pill" th:classappend="${t.published}?'pill-pos':'pill-neutral'" th:text="${t.published}?'Live':'Draft'"></span></td>
+            <td><span class="pill pill-info" th:text="${t.visibility.name()=='PUBLIC'?'Public':'Class only'}"></span></td>
+            <td class="r num" th:text="${qc[t.id]}"></td>
+            <td class="r num"><a th:href="@{/teacher/tests/{id}/results(id=${t.id})}" th:text="${subs[t.id]}"></a></td>
+          </tr></tbody>
+        </table>
+      </div>
+      <div class="card flush">
+        <div class="card-head"><div><h3 class="title">Students</h3><p><span th:text="${#lists.size(students)}"></span> enrolled</p></div></div>
+        <div th:if="${#lists.isEmpty(students)}" class="empty"><b>No students yet</b>Share the code <span class="mono" th:text="${c.code}"></span> with your class.</div>
+        <table class="t" th:unless="${#lists.isEmpty(students)}">
+          <thead><tr><th>Name</th><th>Email</th><th class="r">Joined</th></tr></thead>
+          <tbody><tr th:each="e : ${students}"><td th:text="${e.student.name}"></td><td class="muted" th:text="${e.student.email}"></td><td class="r faint num" th:text="${@fmt.date(e.joinedAt)}"></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <aside class="rail">
+      <div class="card" style="text-align:center">
+        <div class="eyebrow">Class code</div>
+        <div class="roomcode num mt8" th:text="${c.code}">K7QPM2</div>
+        <p class="muted mt8">Students enter this on their dashboard under <b>Join a class</b>.</p>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="title">Danger zone</h3></div></div>
+        <form th:action="@{/teacher/classes/{id}/delete(id=${c.id})}" method="post" onsubmit="return confirm('Delete this class? Students will lose access.')"><button class="btn btn-danger btn-block">Delete class</button></form>
+      </div>
+    </aside>
+  </div>
+</th:block>
+</body></html>

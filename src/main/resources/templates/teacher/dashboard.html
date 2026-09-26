@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Overview', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div>
+      <div class="eyebrow" th:text="${todayLabel}">Date</div>
+      <h1 class="serif page-title">Good morning, <span th:text="${#strings.arraySplit(me.name,' ')[0]}">Ruth</span>.</h1>
+    </div>
+    <div class="row"><a class="btn" th:href="@{/teacher/classes}">New class</a><a class="btn btn-primary" th:href="@{/teacher/tests/new}">Create test</a></div>
+  </div>
+
+  <div class="grid g4 mb16">
+    <div class="card"><div class="eyebrow">Tests created</div><div class="serif kpi num mt8" th:text="${kpiTests}">0</div><div class="sub mt8">across <span th:text="${#lists.size(classes)}">0</span> classes</div></div>
+    <div class="card"><div class="eyebrow">Average score</div><div class="serif kpi num mt8" th:text="${@fmt.pct1(kpiAvg)}">—</div><div class="sub mt8">all submissions</div></div>
+    <div class="card"><div class="eyebrow">Questions banked</div><div class="serif kpi num mt8" th:text="${kpiQuestions}">0</div><div class="sub mt8">typed or imported</div></div>
+    <div class="card"><div class="eyebrow">Students enrolled</div><div class="serif kpi num mt8" th:text="${kpiStudents}">0</div><div class="sub mt8">via class codes</div></div>
+  </div>
+
+  <div class="grid split">
+    <div class="stack" style="gap:16px">
+      <div class="card flush">
+        <div class="card-head"><div><h3 class="title">Recent tests</h3><p>Status, question count and average score per test.</p></div><a class="btn btn-sm" th:href="@{/teacher/tests}">View all</a></div>
+        <div th:if="${#lists.isEmpty(tests)}" class="empty"><b>No tests yet</b>Create a class, then a test, then add questions.</div>
+        <table class="t" th:unless="${#lists.isEmpty(tests)}">
+          <thead><tr><th>Test</th><th>Status</th><th class="r">Questions</th><th>Avg. score</th><th class="r">Submissions</th><th class="r">Updated</th></tr></thead>
+          <tbody>
+            <tr th:each="t : ${tests}">
+              <td><a class="rowlink" th:href="@{/teacher/tests/{id}(id=${t.id})}" th:text="${t.title}">Title</a><div class="sub"><span th:text="${t.classRoom.name}"></span> · <span th:text="${t.language.name()=='URDU'?'Urdu':'English'}"></span></div></td>
+              <td><span class="pill" th:classappend="${t.published}?'pill-pos':'pill-neutral'" th:text="${t.published}?'Live':'Draft'"></span></td>
+              <td class="r num" th:text="${qc[t.id]}">0</td>
+              <td><div class="row"><div class="bar" style="flex:1"><i th:style="'width:' + ${avg[t.id] != null ? avg[t.id] : 0} + '%'"></i></div><span class="num" style="width:44px;text-align:right" th:text="${@fmt.pct1(avg[t.id])}">—</span></div></td>
+              <td class="r num" th:text="${subs[t.id]}">0</td>
+              <td class="r faint num" th:text="${@fmt.date(t.updatedAt)}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card flush">
+        <div class="card-head"><div><h3 class="title">Latest submissions</h3><p>Auto-marked the moment each student hands in.</p></div><a class="btn btn-sm" th:href="@{/teacher/results}">All results</a></div>
+        <div th:if="${#lists.isEmpty(recent)}" class="empty"><b>Nothing marked yet</b>Submissions appear here as students finish.</div>
+        <table class="t" th:unless="${#lists.isEmpty(recent)}">
+          <thead><tr><th>Student</th><th>Test</th><th class="r">Score</th><th class="r">%</th><th>Flags</th><th class="r">Submitted</th></tr></thead>
+          <tbody>
+            <tr th:each="a : ${recent}">
+              <td><a class="rowlink" th:href="@{/teacher/attempts/{id}(id=${a.id})}" th:text="${a.student.name}"></a></td>
+              <td class="muted" th:text="${a.test.title}"></td>
+              <td class="r num"><span th:text="${a.score}"></span>/<span th:text="${a.total}"></span></td>
+              <td class="r num" th:text="${@fmt.pct(a.percentage)}"></td>
+              <td><span th:if="${a.overtime}" class="pill pill-live">Overtime</span><span th:if="${a.autoSubmitted}" class="pill pill-neutral">Auto</span></td>
+              <td class="r faint num" th:text="${@fmt.dateTime(a.submittedAt)}"></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="rail">
+      <div class="card">
+        <div class="card-head"><div><h3 class="title">Class codes</h3><p>Share these with students.</p></div></div>
+        <div th:if="${#lists.isEmpty(classes)}" class="muted">No classes yet. <a th:href="@{/teacher/classes}">Create one</a>.</div>
+        <div th:each="c, s : ${classes}" th:if="${s.index < 4}" class="row between" style="padding:8px 0;border-bottom:1px solid var(--rule)">
+          <div><a class="rowlink" style="color:var(--ink);font-weight:500" th:href="@{/teacher/classes/{id}(id=${c.id})}" th:text="${c.name}"></a><div class="sub" th:text="${c.subject}"></div></div>
+          <span class="roomcode sm num" th:text="${c.code}">K7QPM2</span>
+        </div>
+      </div>
+      <div class="card" id="guide">
+        <div class="card-head"><div><h3 class="title">How a round works</h3></div></div>
+        <ol style="margin:0;padding-left:18px;color:var(--ink-2);font-size:13px;line-height:1.7">
+          <li>Create a class → get a 6-character code.</li>
+          <li>Students register and enter the code.</li>
+          <li>Create a test: title, language, time limit, visibility.</li>
+          <li>Add MCQs one by one or import a PDF / Word / TXT.</li>
+          <li>Publish. Students sit it one question per page.</li>
+          <li>Auto-marked; you see every submission here.</li>
+        </ol>
+      </div>
+    </aside>
+  </div>
+</th:block>
+</body></html>

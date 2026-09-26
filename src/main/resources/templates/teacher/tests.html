@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Tests', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div><div class="eyebrow">Teaching</div><h1 class="serif page-title">Tests</h1></div>
+    <a class="btn btn-primary" th:href="@{/teacher/tests/new}">Create test</a>
+  </div>
+  <div class="card flush">
+    <div th:if="${#lists.isEmpty(tests)}" class="empty"><b>No tests yet</b><span th:if="${#lists.isEmpty(classes)}">Create a <a th:href="@{/teacher/classes}">class</a> first, then a test.</span><span th:unless="${#lists.isEmpty(classes)}">Click Create test to begin.</span></div>
+    <table class="t" th:unless="${#lists.isEmpty(tests)}">
+      <thead><tr><th>Test</th><th>Class</th><th>Status</th><th class="r">Questions</th><th>Avg. score</th><th class="r">Submissions</th><th class="r">Time</th><th class="r">Updated</th></tr></thead>
+      <tbody><tr th:each="t : ${tests}">
+        <td><a class="rowlink" th:href="@{/teacher/tests/{id}(id=${t.id})}" th:text="${t.title}"></a><div class="sub"><span th:text="${t.language.name()=='URDU'?'Urdu':'English'}"></span> · <span th:text="${t.visibility.name()=='PUBLIC'?'Public':'Class only'}"></span></div></td>
+        <td class="muted" th:text="${t.classRoom.name}"></td>
+        <td><span class="pill" th:classappend="${t.published}?'pill-pos':'pill-neutral'" th:text="${t.published}?'Live':'Draft'"></span></td>
+        <td class="r num" th:text="${qc[t.id]}"></td>
+        <td><div class="row"><div class="bar" style="flex:1"><i th:style="'width:' + ${avg[t.id] != null ? avg[t.id] : 0} + '%'"></i></div><span class="num" style="width:44px;text-align:right" th:text="${@fmt.pct1(avg[t.id])}"></span></div></td>
+        <td class="r num"><a th:href="@{/teacher/tests/{id}/results(id=${t.id})}" th:text="${subs[t.id]}"></a></td>
+        <td class="r num" th:text="${t.timeLimitMinutes} + ' min'"></td>
+        <td class="r faint num" th:text="${@fmt.date(t.updatedAt)}"></td>
+      </tr></tbody>
+    </table>
+  </div>
+</th:block>
+</body></html>

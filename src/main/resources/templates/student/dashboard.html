@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Available tests', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div><div class="eyebrow" th:text="${todayLabel}"></div><h1 class="serif page-title">Hello, <span th:text="${#strings.arraySplit(me.name,' ')[0]}"></span>.</h1></div>
+  </div>
+  <div class="grid g3 mb16">
+    <div class="card"><div class="eyebrow">Tests taken</div><div class="serif kpi num mt8" th:text="${kpiTaken}"></div></div>
+    <div class="card"><div class="eyebrow">Average</div><div class="serif kpi num mt8" th:text="${@fmt.pct1(kpiAvg)}"></div></div>
+    <div class="card"><div class="eyebrow">Best score</div><div class="serif kpi num mt8" th:text="${kpiTaken==0}?'—':${@fmt.pct(kpiBest)}"></div></div>
+  </div>
+  <div class="grid split">
+    <div class="stack" style="gap:16px">
+      <div class="card flush">
+        <div class="card-head"><div><h3 class="title">Available tests</h3><p>Public tests plus tests from your classes.</p></div></div>
+        <div th:if="${#lists.isEmpty(available)}" class="empty"><b>No tests available right now</b>Join a class with the code from your teacher.</div>
+        <table class="t" th:unless="${#lists.isEmpty(available)}">
+          <thead><tr><th>Test</th><th>Class</th><th class="r">Questions</th><th class="r">Time</th><th>Your best</th><th></th></tr></thead>
+          <tbody><tr th:each="t : ${available}">
+            <td><a class="rowlink" th:href="@{/student/tests/{id}(id=${t.id})}" th:text="${t.title}"></a><div class="sub"><span th:text="${t.language.name()=='URDU'?'Urdu':'English'}"></span> · <span th:text="${t.visibility.name()=='PUBLIC'?'Public':'Class'}"></span></div></td>
+            <td class="muted" th:text="${t.classRoom.name}"></td>
+            <td class="r num" th:text="${qc[t.id]}"></td>
+            <td class="r num" th:text="${t.timeLimitMinutes} + ' min'"></td>
+            <td><span th:if="${best[t.id]}" class="pill pill-pos num" th:text="${@fmt.pct(best[t.id].percentage)}"></span><span th:unless="${best[t.id]}" class="faint">—</span></td>
+            <td class="r"><a class="btn btn-sm" th:classappend="${inProgress[t.id]}?'btn-amber':'btn-primary'" th:href="@{/student/tests/{id}(id=${t.id})}" th:text="${inProgress[t.id]}?'Resume':(${best[t.id]}?'Retake':'Start')"></a></td>
+          </tr></tbody>
+        </table>
+      </div>
+      <div class="card flush">
+        <div class="card-head"><div><h3 class="title">Recent results</h3></div><a class="btn btn-sm" th:href="@{/student/history}">Full history</a></div>
+        <div th:if="${#lists.isEmpty(history)}" class="empty"><b>No results yet</b></div>
+        <table class="t" th:unless="${#lists.isEmpty(history)}">
+          <thead><tr><th>Test</th><th class="r">Score</th><th>Percentage</th><th class="r">Date</th><th></th></tr></thead>
+          <tbody><tr th:each="a : ${history}">
+            <td><span style="font-weight:500" th:text="${a.test.title}"></span><span th:if="${a.overtime}" class="pill pill-live" style="margin-left:6px">Overtime</span></td>
+            <td class="r num"><span th:text="${a.score}"></span>/<span th:text="${a.total}"></span></td>
+            <td><div class="row"><div class="bar" style="flex:1"><i th:style="'width:' + ${a.percentage} + '%'"></i></div><span class="num" style="width:44px;text-align:right" th:text="${@fmt.pct(a.percentage)}"></span></div></td>
+            <td class="r faint num" th:text="${@fmt.dateTime(a.submittedAt)}"></td>
+            <td class="r"><a class="btn btn-sm" th:href="@{/student/attempts/{id}(id=${a.id})}">Review</a></td>
+          </tr></tbody>
+        </table>
+      </div>
+    </div>
+    <aside class="rail">
+      <div class="card">
+        <div class="card-head"><div><h3 class="title">Join a class</h3><p>Enter the 6-character code from your teacher.</p></div></div>
+        <form th:action="@{/student/join}" method="post">
+          <input class="input code-input mb16" name="code" maxlength="6" required placeholder="······" autocomplete="off" th:value="${pendingCode}">
+          <button class="btn btn-primary btn-block">Join class</button>
+        </form>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="title">My classes</h3></div></div>
+        <div th:if="${#lists.isEmpty(enrollments)}" class="muted">You haven't joined a class yet.</div>
+        <div th:each="e : ${enrollments}" class="row between" style="padding:8px 0;border-bottom:1px solid var(--rule)">
+          <div><div style="font-weight:500" th:text="${e.classRoom.name}"></div><div class="sub" th:text="${e.classRoom.teacher.name}"></div></div>
+          <span class="pill pill-neutral num" th:text="${e.classRoom.code}"></span>
+        </div>
+      </div>
+    </aside>
+  </div>
+</th:block>
+</body></html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Review', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="mb16"><a class="faint" th:href="${backUrl}">← Back</a><h1 class="serif page-title" th:text="${t.title}"></h1>
+    <div class="muted"><span th:text="${a.student.name}"></span> · <span th:text="${t.classRoom.name}"></span> · submitted <span th:text="${@fmt.dateTime(a.submittedAt)}"></span></div></div>
+  <div th:if="${param.auto}" class="flash flash-ok">Time was up — your answers were submitted automatically.</div>
+
+  <div class="grid split">
+    <div class="card flush">
+      <div class="card-head"><div><h3 class="title">Answer review</h3><p>Your answer against the correct answer for every question.</p></div></div>
+      <div class="rev" th:each="r, s : ${rows}">
+        <div class="row" style="align-items:flex-start;gap:12px">
+          <div class="qnum num" th:text="${s.count}"></div>
+          <div style="flex:1;min-width:0">
+            <div class="row between wrap">
+              <div style="font-size:14.5px;font-weight:500" th:classappend="${t.urdu}?'urdu'" th:text="${r.q.prompt}"></div>
+              <span class="pill" th:classappend="${r.correct}?'pill-pos':(${r.selected==null}?'pill-neutral':'pill-warn')" th:text="${r.correct}?'Correct':(${r.selected==null}?'Skipped':'Incorrect')"></span>
+            </div>
+            <div class="opts" th:classappend="${t.urdu}?'urdu'">
+              <div th:each="l : ${ {'A','B','C','D'} }" class="opt" th:classappend="${r.q.correct==l}?'good':(${r.selected==l}?'bad':'')">
+                <span class="k" th:text="${l}"></span><span th:text="${r.q.option(l)}"></span>
+                <span class="faint" style="margin-left:auto;font-size:11px" th:if="${r.selected==l and r.q.correct!=l}">your answer</span>
+                <span class="faint" style="margin-left:auto;font-size:11px" th:if="${r.q.correct==l}" th:text="${r.selected==l}?'your answer ✓':'correct answer'"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <aside class="rail">
+      <div class="card">
+        <div class="row" style="gap:16px">
+          <div class="score-ring" th:style="'--p:' + ${a.percentage}"><span class="num" th:text="${@fmt.pct(a.percentage)}"></span></div>
+          <div><div class="eyebrow">Score</div><div class="serif kpi num mt8"><span th:text="${a.score}"></span><span class="faint" style="font-size:20px">/<span th:text="${a.total}"></span></span></div></div>
+        </div>
+        <div class="hr"></div>
+        <div class="grid g2">
+          <div><div class="eyebrow">Time taken</div><div class="num mt8" style="font-size:15px" th:text="${a.durationLabel}"></div></div>
+          <div><div class="eyebrow">Limit</div><div class="num mt8" style="font-size:15px" th:text="${t.timeLimitMinutes} + ' min'"></div></div>
+          <div><div class="eyebrow">Overtime</div><div class="mt8"><span class="pill" th:classappend="${a.overtime}?'pill-live':'pill-pos'" th:text="${a.overtime}?'Yes':'No'"></span></div></div>
+          <div><div class="eyebrow">Submission</div><div class="mt8"><span class="pill pill-neutral" th:text="${a.autoSubmitted}?'Auto (time up)':'Manual'"></span></div></div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</th:block>
+</body></html>

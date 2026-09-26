@@ -1,0 +1,7 @@
+[build]
+builder = "DOCKERFILE"
+
+[deploy]
+startCommand = "java -Dserver.port=$PORT -jar /app/app.jar"
+healthcheckPath = "/login"
+restartPolicyType = "ON_FAILURE"

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Results', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div><a class="faint" th:href="@{/teacher/tests/{id}(id=${t.id})}">← <span th:text="${t.title}"></span></a><h1 class="serif page-title">Submissions</h1></div>
+  </div>
+  <div class="grid g4 mb16">
+    <div class="card"><div class="eyebrow">Submissions</div><div class="serif kpi num mt8" th:text="${#lists.size(attempts)}"></div></div>
+    <div class="card"><div class="eyebrow">Average</div><div class="serif kpi num mt8" th:text="${@fmt.pct1(avg)}"></div></div>
+    <div class="card"><div class="eyebrow">Best</div><div class="serif kpi num mt8" th:text="${@fmt.pct(best)}"></div></div>
+    <div class="card"><div class="eyebrow">Overtime</div><div class="serif kpi num mt8" th:text="${overtimeCount}"></div></div>
+  </div>
+  <div class="card flush">
+    <div th:if="${#lists.isEmpty(attempts)}" class="empty"><b>No submissions yet</b>Share the class code <span class="mono" th:text="${t.classRoom.code}"></span> and publish the test.</div>
+    <table class="t" th:unless="${#lists.isEmpty(attempts)}">
+      <thead><tr><th>Student</th><th class="r">Score</th><th>Percentage</th><th class="r">Time taken</th><th>Flags</th><th class="r">Submitted</th><th></th></tr></thead>
+      <tbody><tr th:each="a : ${attempts}">
+        <td><a class="rowlink" th:href="@{/teacher/attempts/{id}(id=${a.id})}" th:text="${a.student.name}"></a><div class="sub" th:text="${a.student.email}"></div></td>
+        <td class="r num"><span th:text="${a.score}"></span> / <span th:text="${a.total}"></span></td>
+        <td><div class="row"><div class="bar" style="flex:1" th:classappend="${a.percentage < 40}?'red'"><i th:style="'width:' + ${a.percentage} + '%'"></i></div><span class="num" style="width:44px;text-align:right" th:text="${@fmt.pct(a.percentage)}"></span></div></td>
+        <td class="r num" th:text="${a.durationLabel}"></td>
+        <td><span th:if="${a.overtime}" class="pill pill-live">Overtime</span> <span th:if="${a.autoSubmitted}" class="pill pill-neutral">Auto-submitted</span></td>
+        <td class="r faint num" th:text="${@fmt.dateTime(a.submittedAt)}"></td>
+        <td class="r"><a class="btn btn-sm" th:href="@{/teacher/attempts/{id}(id=${a.id})}">Review</a></td>
+      </tr></tbody>
+    </table>
+  </div>
+</th:block>
+</body></html>
