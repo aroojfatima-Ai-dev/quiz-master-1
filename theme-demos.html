@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rounds — theme options</title>
+<style>
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Archivo","Helvetica Neue",Helvetica,Arial,sans-serif;font-size:13px;background:#ECECEA;color:#1A1A1A;padding:32px 24px 64px}
+  h1{font-family:Georgia,"Iowan Old Style",serif;font-weight:400;font-size:38px;margin:0 0 6px;letter-spacing:-.01em}
+  .intro{color:#616161;margin-bottom:28px;max-width:70ch}
+  .themes{display:grid;grid-template-columns:repeat(auto-fit,minmax(560px,1fr));gap:28px}
+  @media (max-width:640px){.themes{grid-template-columns:1fr}}
+
+  /* ---- each theme is scoped via CSS variables ---- */
+  .theme{border-radius:16px;overflow:hidden;border:1px solid rgba(0,0,0,.08);box-shadow:0 10px 30px -18px rgba(0,0,0,.35);background:var(--paper)}
+  .theme-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:#fff;border-bottom:1px solid rgba(0,0,0,.07)}
+  .theme-head b{font-size:15px;font-weight:600}
+  .theme-head span{color:#616161;font-size:12px}
+  .swatches{display:flex;gap:6px}
+  .swatches i{width:18px;height:18px;border-radius:5px;border:1px solid rgba(0,0,0,.08);display:block}
+
+  /* mini admin */
+  .admin{display:grid;grid-template-columns:150px 1fr;min-height:250px}
+  .side{background:var(--paper2);border-right:1px solid var(--rule);padding:12px 10px}
+  .brand{display:flex;align-items:center;gap:8px;font-weight:600;font-size:12.5px;margin-bottom:12px}
+  .brand i{width:22px;height:22px;border-radius:6px;background:var(--brand);display:grid;place-items:center}
+  .nav a{display:block;padding:6px 8px;border-radius:7px;color:var(--ink2);font-size:12px;margin-bottom:2px}
+  .nav a.on{background:#fff;color:var(--ink);border:1px solid var(--rule);box-shadow:0 1px 0 rgba(0,0,0,.04)}
+  .main{padding:14px 16px}
+  .eyebrow{font-size:10px;text-transform:uppercase;letter-spacing:.14em;color:var(--ink3);font-weight:600}
+  .title{font-family:Georgia,serif;font-size:24px;line-height:1.05;margin:2px 0 10px}
+  .kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+  .kpi{background:#fff;border:1px solid var(--rule);border-radius:10px;padding:10px 12px}
+  .kpi b{font-family:Georgia,serif;font-weight:400;font-size:22px;display:block;margin-top:2px}
+  .kpi small{color:var(--brand);font-weight:600}
+  .card{background:#fff;border:1px solid var(--rule);border-radius:10px;overflow:hidden}
+  .row{display:flex;align-items:center;gap:10px;padding:8px 12px;border-top:1px solid var(--rule);font-size:12px}
+  .row:first-child{border-top:0;background:var(--paper2);font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink3);font-weight:600}
+  .row .g{flex:1}
+  .bar{width:70px;height:5px;background:var(--rule);border-radius:99px;overflow:hidden}.bar i{display:block;height:100%;background:var(--brand)}
+  .pill{font-size:10.5px;padding:1px 7px;border-radius:99px;border:1px solid}
+  .pill.live{background:var(--accentTint);color:var(--accentText);border-color:var(--accentRule)}
+  .pill.ok{background:var(--brandTint);color:var(--brand);border-color:var(--brandRule)}
+  .pill.draft{background:#EFEFED;color:#616161;border-color:#E1E1DE}
+  .btns{display:flex;gap:6px;margin-top:10px}
+  .btn{font-size:12px;padding:6px 11px;border-radius:7px;border:1px solid var(--rule);background:#fff;font-weight:500}
+  .btn.primary{background:var(--primary);color:var(--primaryText);border-color:var(--primary)}
+  .btn.accent{background:var(--accent);color:var(--accentOn);border-color:var(--accent);font-weight:600}
+  .code{font-family:Georgia,serif;font-size:22px;letter-spacing:.18em}
+
+  /* mini stage */
+  .stage{background:var(--slate);color:#fff;padding:16px 18px 18px;position:relative}
+  .stage::before{content:"";position:absolute;inset:0;background:radial-gradient(400px 200px at 50% -10%,var(--stageGlow),transparent 70%);pointer-events:none}
+  .stage>*{position:relative}
+  .drain{height:4px;background:rgba(255,255,255,.1);border-radius:99px;margin-bottom:12px}.drain i{display:block;width:62%;height:100%;background:var(--accent);border-radius:99px}
+  .stage .top{display:flex;justify-content:space-between;align-items:center;font-size:11px;color:rgba(255,255,255,.6)}
+  .stage .top b{font-family:Georgia,serif;font-size:18px;color:#fff;font-weight:400}
+  .stage .top .c{color:var(--accent);letter-spacing:.15em;font-family:Georgia,serif;font-size:13px}
+  .q{font-family:Georgia,serif;font-size:19px;line-height:1.15;margin:10px 0 12px;max-width:34ch}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+  .opt{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:var(--slate2);font-size:12px}
+  .opt i{width:22px;height:22px;border-radius:6px;border:1px solid rgba(255,255,255,.25);display:grid;place-items:center;font-family:Georgia,serif;font-size:12px;font-style:normal}
+  .opt.sel{border-color:var(--accent);background:var(--accentGlow)}.opt.sel i{background:var(--accent);border-color:var(--accent);color:var(--accentOn)}
+  .pick{margin:14px 18px 16px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px;color:#616161}
+  .pick code{background:#fff;border:1px solid #E1E1DE;padding:2px 6px;border-radius:5px;font-size:11px}
+
+  /* ================= THEMES ================= */
+  .t1{--paper:#F1F1F0;--paper2:#F7F7F6;--rule:#E1E1DE;--ink:#1A1A1A;--ink2:#616161;--ink3:#8A8A85;
+      --brand:#0A5C3F;--brandTint:#E4F1EB;--brandRule:#C4E2D5;--primary:#1A1A1A;--primaryText:#fff;
+      --accent:#D98200;--accentOn:#1A1A1A;--accentTint:#FFF3E0;--accentText:#8A4B00;--accentRule:#F5D9AE;--accentGlow:rgba(217,130,0,.16);
+      --slate:#08130F;--slate2:#0F211B;--stageGlow:rgba(10,92,63,.5)}
+  .t2{--paper:#F3F1EC;--paper2:#F8F6F1;--rule:#E4E0D6;--ink:#161A1F;--ink2:#5B6069;--ink3:#8B8F96;
+      --brand:#1E4B8F;--brandTint:#E6EEF9;--brandRule:#C6D6EE;--primary:#161A1F;--primaryText:#fff;
+      --accent:#C8451F;--accentOn:#fff;--accentTint:#FCE9E3;--accentText:#8A2D12;--accentRule:#F2C9BC;--accentGlow:rgba(200,69,31,.18);
+      --slate:#0B1220;--slate2:#131D30;--stageGlow:rgba(30,75,143,.55)}
+  .t3{--paper:#F2F1EE;--paper2:#F8F7F5;--rule:#E3E1DC;--ink:#1B1A18;--ink2:#63615C;--ink3:#8E8B84;
+      --brand:#7A2E2E;--brandTint:#F6E7E7;--brandRule:#E7C9C9;--primary:#7A2E2E;--primaryText:#fff;
+      --accent:#B8912A;--accentOn:#1B1A18;--accentTint:#FBF3DB;--accentText:#6E5410;--accentRule:#EBDBA3;--accentGlow:rgba(184,145,42,.2);
+      --slate:#160E0E;--slate2:#231616;--stageGlow:rgba(122,46,46,.55)}
+  .t4{--paper:#EEF2F1;--paper2:#F5F8F7;--rule:#DCE3E1;--ink:#12201E;--ink2:#54655F;--ink3:#84928D;
+      --brand:#0F6E6E;--brandTint:#E1F2F2;--brandRule:#BFE0E0;--primary:#0F6E6E;--primaryText:#fff;
+      --accent:#E1A100;--accentOn:#12201E;--accentTint:#FFF6DA;--accentText:#7A5600;--accentRule:#F3DE9A;--accentGlow:rgba(225,161,0,.18);
+      --slate:#07191B;--slate2:#0E2628;--stageGlow:rgba(15,110,110,.55)}
+  .t5{--paper:#F4F4F4;--paper2:#FAFAFA;--rule:#E3E3E3;--ink:#111;--ink2:#5C5C5C;--ink3:#8C8C8C;
+      --brand:#2B2B2B;--brandTint:#EDEDED;--brandRule:#D6D6D6;--primary:#111;--primaryText:#fff;
+      --accent:#E4572E;--accentOn:#fff;--accentTint:#FDEBE5;--accentText:#8F2E13;--accentRule:#F5C8B9;--accentGlow:rgba(228,87,46,.18);
+      --slate:#0E0E0E;--slate2:#1A1A1A;--stageGlow:rgba(228,87,46,.28)}
+  .t6{--paper:#F1F3EE;--paper2:#F7F9F4;--rule:#DFE4D8;--ink:#171D14;--ink2:#5A6353;--ink3:#889182;
+      --brand:#4F6B2F;--brandTint:#EAF1E0;--brandRule:#CDDDB9;--primary:#171D14;--primaryText:#fff;
+      --accent:#D4A017;--accentOn:#171D14;--accentTint:#FBF3D8;--accentText:#735508;--accentRule:#EEDB9B;--accentGlow:rgba(212,160,23,.2);
+      --slate:#0F150B;--slate2:#1A2314;--stageGlow:rgba(79,107,47,.55)}
+</style>
+</head>
+<body>
+<h1>Rounds — pick a theme</h1>
+<p class="intro">Each card shows the same two screens: the <b>teacher admin (paper mode)</b> on top and the <b>student test runner (stage mode)</b> below. Only the colour tokens change; layout and typography stay identical. Tell me the number you like (or mix: e.g. "brand from 4, accent from 2").</p>
+
+<div class="themes" id="themes"></div>
+
+<template id="tpl">
+  <div class="theme">
+    <div class="theme-head"><div><b class="name"></b> &nbsp;<span class="desc"></span></div><div class="swatches"></div></div>
+    <div class="admin">
+      <div class="side">
+        <div class="brand"><i><svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 12 L8 4 L13 12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="12" r="1.6" fill="var(--accent)"/></svg></i>Rounds</div>
+        <div class="nav"><a class="on">Overview</a><a>Tests</a><a>Classes</a><a>Results</a></div>
+      </div>
+      <div class="main">
+        <div class="eyebrow">Friday 26 September</div>
+        <div class="title">Good morning, Ruth.</div>
+        <div class="kpis">
+          <div class="kpi"><div class="eyebrow">Tests</div><b>12</b><small>▲ 3 this week</small></div>
+          <div class="kpi"><div class="eyebrow">Average</div><b>71.4%</b><small>▲ 4.2%</small></div>
+          <div class="kpi"><div class="eyebrow">Class code</div><b class="code">K7QPM2</b></div>
+        </div>
+        <div class="card">
+          <div class="row"><span class="g">Test</span><span>Status</span><span>Avg</span></div>
+          <div class="row"><span class="g">Acids and bases</span><span class="pill live">● Live</span><span class="bar"><i style="width:72%"></i></span></div>
+          <div class="row"><span class="g">Forces</span><span class="pill ok">Ended</span><span class="bar"><i style="width:58%"></i></span></div>
+          <div class="row"><span class="g">اردو ٹیسٹ</span><span class="pill draft">Draft</span><span class="bar"><i style="width:0"></i></span></div>
+        </div>
+        <div class="btns"><span class="btn primary">Create test</span><span class="btn">Import from file</span><span class="btn accent">Publish</span></div>
+      </div>
+    </div>
+    <div class="stage">
+      <div class="drain"><i></i></div>
+      <div class="top"><div>9B CHEMISTRY · <span class="c">K7QPM2</span></div><b>03:42</b></div>
+      <div class="q">Which of these is a strong acid?</div>
+      <div class="opts">
+        <div class="opt"><i>A</i>Ethanoic acid</div>
+        <div class="opt"><i>B</i>Citric acid</div>
+        <div class="opt sel"><i>C</i>Hydrochloric acid</div>
+        <div class="opt"><i>D</i>Carbonic acid</div>
+      </div>
+    </div>
+    <div class="pick tokens"></div>
+  </div>
+</template>
+
+<script>
+const themes = [
+  {n:"1 · Chalkboard & Bell",  cls:"t1", d:"current design — chalkboard green + desk-bell amber, warm paper", sw:["#0A5C3F","#D98200","#F1F1F0","#08130F"]},
+  {n:"2 · Ink & Brick",        cls:"t2", d:"navy blue brand, brick-red accent, cream paper, midnight stage", sw:["#1E4B8F","#C8451F","#F3F1EC","#0B1220"]},
+  {n:"3 · Maroon & Brass",     cls:"t3", d:"school-blazer maroon, brass gold accent, stone paper", sw:["#7A2E2E","#B8912A","#F2F1EE","#160E0E"]},
+  {n:"4 · Teal & Saffron",     cls:"t4", d:"deep teal brand, saffron accent, cool mint paper", sw:["#0F6E6E","#E1A100","#EEF2F1","#07191B"]},
+  {n:"5 · Graphite & Flame",   cls:"t5", d:"neutral graphite UI, single hot orange accent, pure black stage", sw:["#2B2B2B","#E4572E","#F4F4F4","#0E0E0E"]},
+  {n:"6 · Olive & Honey",      cls:"t6", d:"olive green brand, honey accent, sage paper — softer, calmer", sw:["#4F6B2F","#D4A017","#F1F3EE","#0F150B"]},
+];
+const wrap = document.getElementById('themes'), tpl = document.getElementById('tpl');
+for (const t of themes) {
+  const el = tpl.content.cloneNode(true).firstElementChild;
+  el.classList.add(t.cls);
+  el.querySelector('.name').textContent = t.n;
+  el.querySelector('.desc').textContent = t.d;
+  el.querySelector('.swatches').innerHTML = t.sw.map(c=>`<i style="background:${c}" title="${c}"></i>`).join('');
+  el.querySelector('.tokens').innerHTML = `brand <code>${t.sw[0]}</code> accent <code>${t.sw[1]}</code> paper <code>${t.sw[2]}</code> stage <code>${t.sw[3]}</code>`;
+  wrap.appendChild(el);
+}
+</script>
+</body>
+</html>
