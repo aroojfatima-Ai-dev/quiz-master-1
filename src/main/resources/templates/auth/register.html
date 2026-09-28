@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="en">
-<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Create account · Rounds</title><link rel="stylesheet" th:href="@{/css/rounds.css}"></head>
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Create account · Quiz Master</title><link rel="stylesheet" th:href="@{/css/quiz-master.css}"></head>
 <body>
 <div class="auth">
   <section class="auth-photo">
     <div>
-      <div class="row" style="gap:10px;margin-bottom:28px"><div class="brand-mark"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 12 L8 4 L13 12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="12" r="1.6" fill="#D98200"/></svg></div><b style="font-size:15px">Rounds</b></div>
+      <div class="row" style="gap:10px;margin-bottom:28px"><div class="brand-mark"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 12 L8 4 L13 12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="12" r="1.6" fill="#D98200"/></svg></div><b style="font-size:15px">Quiz Master</b></div>
       <h1 class="serif" th:text="${role=='TEACHER'} ? 'Set the paper. Skip the marking.' : 'Six characters and you\'re in.'">Six characters and you're in.</h1>
       <p th:text="${role=='TEACHER'} ? 'Create a class, share the code, add questions by hand or from a PDF, and watch the results roll in — English or Urdu.' : 'Ask your teacher for the class code, sign up, and your tests appear here. Every answer is reviewed straight after you hand in.'"></p>
     </div>
@@ -13,7 +13,7 @@
   <section class="auth-form">
     <div>
       <div class="eyebrow">Create account</div>
-      <h2 class="serif page-title" style="margin:4px 0 16px">Join Rounds</h2>
+      <h2 class="serif page-title" style="margin:4px 0 16px">Join Quiz Master</h2>
       <div class="seg">
         <a th:href="@{/register(role='STUDENT')}" th:classappend="${role=='STUDENT'}?'on'">I'm a student</a>
         <a th:href="@{/register(role='TEACHER')}" th:classappend="${role=='TEACHER'}?'on'">I'm a teacher</a>

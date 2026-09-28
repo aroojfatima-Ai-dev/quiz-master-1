@@ -9,7 +9,7 @@ RUN mvn -q -B -DskipTests package
 # ---- run ----
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-COPY --from=build /src/target/rounds.jar app.jar
+COPY --from=build /src/target/quiz-master-1.jar app.jar
 ENV PORT=8080
 EXPOSE 8080
 CMD ["sh","-c","java -Dserver.port=$PORT -jar app.jar"]

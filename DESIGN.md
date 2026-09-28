@@ -1,14 +1,14 @@
-# DESIGN.md — Rounds (Quiz Master for Teachers & Students)
+# DESIGN.md — Quiz Master (Quiz Master for Teachers & Students)
 
 > This document describes the design system **as implemented** in this repository
-> (`src/main/resources/static/css/rounds.css` + Thymeleaf templates). It is the source of truth for
-> any visual change. Change tokens here first, then in `rounds.css`.
+> (`src/main/resources/static/css/quiz-master.css` + Thymeleaf templates). It is the source of truth for
+> any visual change. Change tokens here first, then in `quiz-master.css`.
 
 ---
 
 ## 1. Design Thesis & Aesthetic Direction
 
-**Rounds** is a classroom quiz platform built with the structural discipline of **Shopify Polaris**
+**Quiz Master** is a classroom quiz platform built with the structural discipline of **Shopify Polaris**
 and the material honesty of an **exam-board answer booklet on a laminated teacher's desk**.
 
 ### Core principles
@@ -35,7 +35,7 @@ and the material honesty of an **exam-board answer booklet on a laminated teache
 
 ## 2. Colour System & Surface Tokens
 
-Defined as CSS custom properties on `:root` in `rounds.css`.
+Defined as CSS custom properties on `:root` in `quiz-master.css`.
 
 ### Surfaces & hairlines
 
@@ -103,7 +103,7 @@ Focus ring (inputs): `border-color: var(--board); box-shadow: 0 0 0 3px rgba(10,
 | `--display` | `"Instrument Serif", "Iowan Old Style", Georgia, serif` | Page titles, KPI figures, class codes, question prompts, clock |
 | `--urdu` | `"Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", serif` | Any `.urdu` element (RTL, `line-height: 2`) |
 
-Fonts are loaded from Google Fonts at the top of `rounds.css`; the stacks degrade gracefully offline.
+Fonts are loaded from Google Fonts at the top of `quiz-master.css`; the stacks degrade gracefully offline.
 
 ### Scale & utility classes
 
@@ -134,7 +134,7 @@ Apply to every score, percentage, countdown, question counter, date and class co
 
 - **Desktop sidebar** — `236px`, sticky, `--paper-2` background, right hairline.
   - Brand mark: `28px` rounded square (`7px` radius) in `--board`, custom geometric SVG
-    (line-line-dot; dot is amber) + "Rounds" + role label ("Teacher desk" / "Student desk").
+    (line-line-dot; dot is amber) + "Quiz Master" + role label ("Teacher desk" / "Student desk").
   - Nav groups with eyebrow labels. Teacher: *Teaching* → Overview, Tests, Classes, Results;
     *Department* → Help centre. Student: *Learning* → Available tests, My results.
   - Active item: white card fill, `1px --rule` border, `--shadow-card`, icon stroke `--board`.
@@ -218,7 +218,7 @@ Rendered **outside** the shell (no sidebar/top bar) so nothing competes with the
 
 ---
 
-## 6. Component Specifications (`rounds.css`)
+## 6. Component Specifications (`quiz-master.css`)
 
 ### Cards
 - `.card` — `bg --card`, `1px --rule`, `radius 12px`, `--shadow-card`, `padding 20px`.

@@ -1,4 +1,4 @@
-# Rounds — Quiz master for teachers & students
+# Quiz Master — Quiz master for teachers & students
 
 Java 17 · Spring Boot 3 · Thymeleaf · Spring Security (BCrypt) · Spring Data JPA · MySQL (H2 fallback for local dev)
 
@@ -51,7 +51,7 @@ Markers `A)` `A.` `(A)` `A:` are all accepted; PDFs and Word files are read as t
 
 ## Project layout
 ```
-src/main/java/app/rounds
+src/main/java/app/quizmaster
   config/     SecurityConfig, AppUser (principal), GlobalModel
   model/      User, ClassRoom, Enrollment, Test, Question, Attempt, Answer
   repo/       Spring Data repositories
@@ -59,5 +59,5 @@ src/main/java/app/rounds
   web/        AuthController, TeacherController, StudentController
 src/main/resources
   templates/  Thymeleaf views (auth/, teacher/, student/, review.html, fragments/layout.html)
-  static/css/rounds.css   design tokens: paper mode (admin) + slate stage (test runner)
+  static/css/quiz-master.css   design tokens: paper mode (admin) + slate stage (test runner)
 ```

@@ -7,10 +7,10 @@
     <version>3.2.5</version>
     <relativePath/>
   </parent>
-  <groupId>app.rounds</groupId>
-  <artifactId>rounds</artifactId>
+  <groupId>app.quizmaster</groupId>
+  <artifactId>quiz-master-1</artifactId>
   <version>1.0.0</version>
-  <name>Rounds</name>
+  <name>Quiz Master 1</name>
   <description>Quiz master for teachers and students</description>
   <properties><java.version>17</java.version></properties>
   <dependencies>
@@ -26,7 +26,7 @@
     <dependency><groupId>org.apache.poi</groupId><artifactId>poi-ooxml</artifactId><version>5.2.5</version></dependency>
   </dependencies>
   <build>
-    <finalName>rounds</finalName>
+    <finalName>quiz-master-1</finalName>
     <plugins>
       <plugin><groupId>org.springframework.boot</groupId><artifactId>spring-boot-maven-plugin</artifactId></plugin>
     </plugins>
