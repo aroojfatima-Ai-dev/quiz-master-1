@@ -11,7 +11,7 @@ Java 17 · Spring Boot 3 · Thymeleaf · Spring Security (BCrypt) · Spring Data
 | 4 | Publishes | Test auto-submits at zero (or continues flagged as overtime if allowed) |
 | 5 | Sees every submission: score, %, time taken, overtime/auto flags, per-question review | Gets instant score + full answer review; history kept |
 
-Security: BCrypt password hashing, CSRF on every form, role-based routes (`/teacher/**`, `/student/**`), ownership checks on every entity, students only see tests they're entitled to.
+Security: BCrypt password hashing, CSRF on every form, role-based routes (`/teacher/**`, `/student/**`, `/admin/**`), ownership checks on every entity, students only see tests they're entitled to.
 
 ## Run locally
 ```bash
@@ -35,6 +35,39 @@ mvn spring-boot:run          # uses embedded H2 file DB in ./data
 
 > Urdu text is stored as UTF-8; `characterEncoding=utf8mb4` in the JDBC URL keeps it intact in MySQL.
 
+## Admin panel
+
+A third role, `ADMIN`, sits above teachers and students. The first admin is created automatically on boot
+by `config/AdminSeeder` (only when no admin exists yet):
+
+| Setting | Env var | Default |
+|---|---|---|
+| Bootstrap enabled | `APP_ADMIN_SEED` | `true` |
+| Admin email (login) | `APP_ADMIN_EMAIL` | `admin@quizmaster.app` |
+| Admin password | `APP_ADMIN_PASSWORD` | `Admin@12345` |
+
+> Sign in at `/login` with the admin email — you land straight on `/admin/dashboard`.
+> Change `APP_ADMIN_PASSWORD` (and delete the default account through the panel) before going public.
+> To pre-seed by hand instead, insert a row into `users` with `role='ADMIN'` and a BCrypt `password_hash`
+> and set `APP_ADMIN_SEED=false`.
+
+| Page | What it shows |
+|---|---|
+| `/admin/dashboard` | Totals: teachers, students, classes, tests, attempts submitted (+ questions, live tests, average) |
+| `/admin/users` | Every account (id, username, email, role, created) with role filters and a Delete action |
+| `/admin/classes` | Every class: name, join code, owning teacher, enrolled students, tests — plus Delete |
+| `/admin/tests` | Every test: title, teacher, status, visibility, language, question count, attempts, average — plus Delete |
+| `/admin/tests/{id}/questions` | Read-only view of one test's questions (correct option marked) |
+| `/admin/attempts` | Read-only log of every attempt across the system (student, test, score, dates) |
+
+Deletions are guarded so no record is orphaned:
+
+* a **teacher** can only be deleted once every class and test they own is gone (the panel says how many are left);
+* a **class** can only be deleted once it holds no tests (enrollments are cleared with it);
+* a **test** delete carries its questions and every attempt recorded against it;
+* a **student** delete clears their enrollments and attempts first;
+* **admin accounts** and **your own account** can't be deleted from the panel.
+
 ## Bulk-import format
 See `samples/sample-questions.txt`. Each question block:
 ```
@@ -52,12 +85,12 @@ Markers `A)` `A.` `(A)` `A:` are all accepted; PDFs and Word files are read as t
 ## Project layout
 ```
 src/main/java/app/quizmaster
-  config/     SecurityConfig, AppUser (principal), GlobalModel
-  model/      User, ClassRoom, Enrollment, Test, Question, Attempt, Answer
+  config/     SecurityConfig, AppUser (principal), GlobalModel, AdminSeeder (first ADMIN account)
+  model/      User, ClassRoom, Enrollment, Test, Question, Attempt, Answer, Role (TEACHER/STUDENT/ADMIN)
   repo/       Spring Data repositories
   service/    CodeService (class codes), QuestionImportService (PDF/DOCX/TXT parser), AttemptService (timer, scoring), Fmt
-  web/        AuthController, TeacherController, StudentController
+  web/        AuthController, TeacherController, StudentController, AdminController
 src/main/resources
-  templates/  Thymeleaf views (auth/, teacher/, student/, review.html, fragments/layout.html)
+  templates/  Thymeleaf views (auth/, teacher/, student/, admin/, review.html, fragments/layout.html)
   static/css/quiz-master.css   design tokens: paper mode (admin) + slate stage (test runner)
 ```

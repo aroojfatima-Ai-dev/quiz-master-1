@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Admin overview', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div>
+      <div class="eyebrow" th:text="${todayLabel}">Date</div>
+      <h1 class="serif page-title">System overview</h1>
+    </div>
+    <div class="row">
+      <a class="btn" th:href="@{/admin/attempts}">All attempts</a>
+      <a class="btn btn-primary" th:href="@{/admin/users}">Manage users</a>
+    </div>
+  </div>
+
+  <div class="grid g4 mb16">
+    <div class="card"><div class="eyebrow">Teachers</div><div class="serif kpi num mt8" th:text="${teacherCount}">0</div><div class="sub mt8">registered accounts</div></div>
+    <div class="card"><div class="eyebrow">Students</div><div class="serif kpi num mt8" th:text="${studentCount}">0</div><div class="sub mt8">registered accounts</div></div>
+    <div class="card"><div class="eyebrow">Classes</div><div class="serif kpi num mt8" th:text="${classCount}">0</div><div class="sub mt8">across every teacher</div></div>
+    <div class="card"><div class="eyebrow">Tests</div><div class="serif kpi num mt8" th:text="${testCount}">0</div><div class="sub mt8"><span th:text="${liveTestCount}">0</span> live · <span th:text="${testCount - liveTestCount}">0</span> draft</div></div>
+  </div>
+
+  <div class="grid g3 mb16">
+    <div class="card"><div class="eyebrow">Attempts submitted</div><div class="serif kpi num mt8" th:text="${attemptCount}">0</div><div class="sub mt8">handed in system-wide</div></div>
+    <div class="card"><div class="eyebrow">Questions banked</div><div class="serif kpi num mt8" th:text="${questionCount}">0</div><div class="sub mt8">typed or imported</div></div>
+    <div class="card"><div class="eyebrow">Average score</div><div class="serif kpi num mt8" th:text="${@fmt.pct1(avgAll)}">—</div><div class="sub mt8">over every submission</div></div>
+  </div>
+
+  <div class="grid split">
+    <div class="stack" style="gap:16px">
+      <div class="card flush">
+        <div class="card-head"><div><h3 class="title">Latest submissions</h3><p>Every teacher's tests, newest first.</p></div><a class="btn btn-sm" th:href="@{/admin/attempts(status='submitted')}">All attempts</a></div>
+        <div th:if="${#lists.isEmpty(recent)}" class="empty"><b>Nothing submitted yet</b>Attempts appear here the moment a student hands in.</div>
+        <table class="t" th:unless="${#lists.isEmpty(recent)}">
+          <thead><tr><th>Student</th><th>Test</th><th>Teacher</th><th class="r">Score</th><th class="r">%</th><th>Flags</th><th class="r">Submitted</th></tr></thead>
+          <tbody>
+            <tr th:each="a : ${recent}">
+              <td><span style="font-weight:500" th:text="${a.student.name}">Student</span><div class="sub" th:text="${a.student.email}">email</div></td>
+              <td><a class="rowlink" th:href="@{/admin/tests/{id}/questions(id=${a.test.id})}" th:text="${a.test.title}">Test</a></td>
+              <td class="muted" th:text="${a.test.teacher.name}">Teacher</td>
+              <td class="r num"><span th:text="${a.score}">0</span>/<span th:text="${a.total}">0</span></td>
+              <td class="r num" th:text="${@fmt.pct(a.percentage)}">0%</td>
+              <td><span th:if="${a.overtime}" class="pill pill-live">Overtime</span> <span th:if="${a.autoSubmitted}" class="pill pill-neutral">Auto</span></td>
+              <td class="r faint num" th:text="${@fmt.dateTime(a.submittedAt)}">date</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card flush">
+        <div class="card-head"><div><h3 class="title">Newest accounts</h3><p>The last eight registrations.</p></div><a class="btn btn-sm" th:href="@{/admin/users}">All users</a></div>
+        <table class="t">
+          <thead><tr><th>Username</th><th>Email</th><th>Role</th><th class="r">Created</th></tr></thead>
+          <tbody>
+            <tr th:each="u : ${newest}">
+              <td><a class="rowlink" th:href="@{/admin/users}" th:text="${u.name}">Name</a></td>
+              <td class="muted" th:text="${u.email}">email</td>
+              <td><span class="pill" th:classappend="${u.role.name()=='ADMIN'}?'pill-live':(${u.role.name()=='TEACHER'}?'pill-info':'pill-neutral')" th:text="${#strings.capitalize(#strings.toLowerCase(u.role.name()))}">Role</span></td>
+              <td class="r faint num" th:text="${@fmt.date(u.createdAt)}">date</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <aside class="rail">
+      <div class="card" id="integrity">
+        <div class="card-head"><div><h3 class="title">Delete rules</h3><p>What the panel refuses to remove.</p></div></div>
+        <ul style="margin:0;padding-left:18px;color:var(--ink-2);font-size:13px;line-height:1.7">
+          <li>A teacher stays until <b>every</b> class and test they own is deleted.</li>
+          <li>A class stays while any test still points at it.</li>
+          <li>Deleting a test takes its questions and attempts with it.</li>
+          <li>Deleting a student clears their enrollments and attempts.</li>
+          <li>Admin accounts and your own account can't be deleted here.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="title">Role split</h3><p>Accounts by access level.</p></div></div>
+        <div class="row between" style="padding:8px 0;border-bottom:1px solid var(--rule)">
+          <span class="muted">Teachers</span><span class="num" th:text="${teacherCount}">0</span>
+        </div>
+        <div class="row between" style="padding:8px 0;border-bottom:1px solid var(--rule)">
+          <span class="muted">Students</span><span class="num" th:text="${studentCount}">0</span>
+        </div>
+        <div class="row between" style="padding:8px 0">
+          <span class="muted">Admins</span><span class="num" th:text="${adminCount}">1</span>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div><h3 class="title">Signed in as</h3><p th:text="${me.email}">email</p></div></div>
+        <div class="row"><span class="pill pill-live">ADMIN</span><span class="faint">full system access</span></div>
+      </div>
+    </aside>
+  </div>
+</th:block>
+</body></html>

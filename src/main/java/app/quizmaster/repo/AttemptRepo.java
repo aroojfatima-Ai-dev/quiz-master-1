@@ -16,4 +16,14 @@ public interface AttemptRepo extends JpaRepository<Attempt, Long> {
     @Query("select avg(a.percentage) from Attempt a where a.test = ?1 and a.submittedAt is not null") Double avgPercentage(Test t);
     @Query("select avg(a.percentage) from Attempt a where a.test.teacher = ?1 and a.submittedAt is not null") Double avgPercentageForTeacher(User t);
     @Query("select a from Attempt a where a.test.teacher = ?1 and a.submittedAt is not null order by a.submittedAt desc") List<Attempt> recentForTeacher(User t);
+    /* ---------- admin panel ---------- */
+    List<Attempt> findAllByOrderByStartedAtDesc();
+    List<Attempt> findBySubmittedAtIsNotNullOrderBySubmittedAtDesc();
+    List<Attempt> findBySubmittedAtIsNullOrderByStartedAtDesc();
+    List<Attempt> findTop8BySubmittedAtIsNotNullOrderBySubmittedAtDesc();
+    List<Attempt> findByStudent(User s);
+    long countByStudent(User s);
+    long countByStudentAndSubmittedAtIsNotNull(User s);
+    long countBySubmittedAtIsNotNull();
+    @Query("select avg(a.percentage) from Attempt a where a.submittedAt is not null") Double avgPercentageAll();
 }

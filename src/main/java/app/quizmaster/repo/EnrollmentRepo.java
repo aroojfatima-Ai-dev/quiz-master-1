@@ -11,4 +11,7 @@ public interface EnrollmentRepo extends JpaRepository<Enrollment, Long> {
     boolean existsByStudentAndClassRoom(User s, ClassRoom c);
     long countByClassRoom(ClassRoom c);
     @Query("select count(e) from Enrollment e where e.classRoom.teacher = ?1") long countStudentsOfTeacher(User t);
+    /* ---------- admin panel ---------- */
+    List<Enrollment> findByStudent(User student);
+    long countByStudent(User student);
 }

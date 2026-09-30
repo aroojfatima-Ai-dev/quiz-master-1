@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Tests', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div><div class="eyebrow">Administration</div><h1 class="serif page-title">Tests</h1></div>
+    <div class="muted"><span class="num" th:text="${#lists.size(list)}">0</span> tests · <span class="num" th:text="${liveTests}">0</span> live · <span class="num" th:text="${totalQuestions}">0</span> questions · <span class="num" th:text="${totalAttempts}">0</span> submissions</div>
+  </div>
+
+  <div class="card flush">
+    <div th:if="${#lists.isEmpty(list)}" class="empty"><b>No tests yet</b>Tests created by teachers appear here.</div>
+    <table class="t" th:unless="${#lists.isEmpty(list)}">
+      <thead><tr><th>Test</th><th>Teacher</th><th>Status</th><th>Visibility</th><th>Language</th><th class="r">Questions</th><th class="r">Attempts</th><th>Avg. score</th><th class="r">Action</th></tr></thead>
+      <tbody>
+        <tr th:each="t : ${list}">
+          <td>
+            <a class="rowlink" th:href="@{/admin/tests/{id}/questions(id=${t.id})}" th:text="${t.title}">Title</a>
+            <div class="sub" th:text="${t.classRoom.name}">Class</div>
+          </td>
+          <td><span th:text="${t.teacher.name}">Teacher</span><div class="sub" th:text="${t.teacher.email}">email</div></td>
+          <td><span class="pill" th:classappend="${t.published}?'pill-pos':'pill-neutral'" th:text="${t.published}?'Live':'Draft'">Status</span></td>
+          <td><span class="pill" th:classappend="${t.visibility.name()=='PUBLIC'}?'pill-info':'pill-neutral'" th:text="${t.visibility.name()=='PUBLIC'}?'Public':'Class only'">Visibility</span></td>
+          <td class="muted" th:text="${t.language.name()=='URDU'}?'Urdu':'English'">Language</td>
+          <td class="r num"><a th:href="@{/admin/tests/{id}/questions(id=${t.id})}" th:text="${questionCounts[t.id]}">0</a></td>
+          <td class="r num" th:text="${attemptCounts[t.id]}">0</td>
+          <td><div class="row"><div class="bar" style="flex:1"><i th:style="'width:' + ${averages[t.id] != null ? averages[t.id] : 0} + '%'"></i></div><span class="num" style="width:44px;text-align:right" th:text="${@fmt.pct1(averages[t.id])}">—</span></div></td>
+          <td class="r">
+            <form th:action="@{/admin/tests/{id}/delete(id=${t.id})}" method="post" onsubmit="return confirm('Delete this test with its questions and every attempt on it?')">
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="help mt16">Deleting a test removes its questions and every attempt recorded against it, across all students. The teacher who owns it loses it from their desk.</p>
+</th:block>
+</body></html>

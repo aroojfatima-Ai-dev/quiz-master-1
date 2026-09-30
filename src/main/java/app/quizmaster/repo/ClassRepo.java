@@ -9,4 +9,7 @@ public interface ClassRepo extends JpaRepository<ClassRoom, Long> {
     Optional<ClassRoom> findByCodeIgnoreCase(String code);
     boolean existsByCode(String code);
     long countByTeacher(User teacher);
+    /* ---------- admin panel ---------- */
+    List<ClassRoom> findAllByOrderByCreatedAtDesc();
+    List<ClassRoom> findByTeacher(User teacher);
 }

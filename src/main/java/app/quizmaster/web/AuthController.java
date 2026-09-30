@@ -19,7 +19,11 @@ public class AuthController {
     @GetMapping("/")
     public String home(@AuthenticationPrincipal AppUser p) {
         if (p == null) return "redirect:/login";
-        return p.getUser().getRole() == Role.TEACHER ? "redirect:/teacher" : "redirect:/student";
+        return switch (p.getUser().getRole()) {
+            case ADMIN -> "redirect:/admin/dashboard";
+            case TEACHER -> "redirect:/teacher";
+            case STUDENT -> "redirect:/student";
+        };
     }
 
     @GetMapping("/login")

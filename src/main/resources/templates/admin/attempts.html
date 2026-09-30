@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Attempts', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div><div class="eyebrow">Administration</div><h1 class="serif page-title">All attempts</h1></div>
+    <div class="row wrap">
+      <a class="btn btn-sm" th:classappend="${status=='all'}?'btn-primary':''" th:href="@{/admin/attempts}">All <span class="num" th:text="${totalCount}">0</span></a>
+      <a class="btn btn-sm" th:classappend="${status=='submitted'}?'btn-primary':''" th:href="@{/admin/attempts(status='submitted')}">Submitted <span class="num" th:text="${submittedCount}">0</span></a>
+      <a class="btn btn-sm" th:classappend="${status=='in-progress'}?'btn-primary':''" th:href="@{/admin/attempts(status='in-progress')}">In progress <span class="num" th:text="${openCount}">0</span></a>
+    </div>
+  </div>
+
+  <div class="card flush">
+    <div class="card-head">
+      <div><h3 class="title">Attempt log</h3><p>Read-only across every teacher and student. Average score <span class="num" th:text="${@fmt.pct1(avgAll)}">—</span>.</p></div>
+    </div>
+    <div th:if="${#lists.isEmpty(list)}" class="empty"><b>No attempts in this view</b>Students' runs appear here as soon as they start a test.</div>
+    <table class="t" th:unless="${#lists.isEmpty(list)}">
+      <thead>
+        <tr><th>Student</th><th>Test</th><th>Teacher</th><th class="r">Score</th><th class="r">%</th><th>Status</th><th class="r">Started</th><th class="r">Submitted</th></tr>
+      </thead>
+      <tbody>
+        <tr th:each="a : ${list}">
+          <td><span style="font-weight:500" th:text="${a.student.name}">Student</span><div class="sub" th:text="${a.student.email}">email</div></td>
+          <td>
+            <a class="rowlink" th:href="@{/admin/tests/{id}/questions(id=${a.test.id})}" th:text="${a.test.title}">Test</a>
+            <div class="sub" th:text="${a.test.classRoom.name}">Class</div>
+          </td>
+          <td class="muted" th:text="${a.test.teacher.name}">Teacher</td>
+          <td class="r num">
+            <span th:if="${a.submitted}" th:text="${a.score}">0</span><span th:if="${a.submitted}">/</span><span th:if="${a.submitted}" th:text="${a.total}">0</span>
+            <span class="faint" th:unless="${a.submitted}">—</span>
+          </td>
+          <td>
+            <div class="row" th:if="${a.submitted}">
+              <div class="bar" style="flex:1"><i th:style="'width:' + ${a.percentage} + '%'"></i></div>
+              <span class="num" style="width:44px;text-align:right" th:text="${@fmt.pct(a.percentage)}">0%</span>
+            </div>
+            <span class="faint" th:unless="${a.submitted}">—</span>
+          </td>
+          <td>
+            <span class="pill pill-pos" th:if="${a.submitted}">Submitted</span>
+            <span class="pill pill-live" th:unless="${a.submitted}"><i class="dot pulse"></i>In progress</span>
+            <span class="pill pill-live" style="margin-left:4px" th:if="${a.overtime}">Overtime</span>
+            <span class="pill pill-neutral" style="margin-left:4px" th:if="${a.autoSubmitted}">Auto</span>
+          </td>
+          <td class="r faint num" th:text="${@fmt.dateTime(a.startedAt)}">date</td>
+          <td class="r faint num" th:text="${@fmt.dateTime(a.submittedAt)}">date</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="help mt16">This log is read-only — admins review attempts but never change a score. Per-question breakdowns stay with the teacher who set the test.</p>
+</th:block>
+</body></html>

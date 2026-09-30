@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Classes', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div><div class="eyebrow">Administration</div><h1 class="serif page-title">Classes</h1></div>
+    <div class="muted"><span class="num" th:text="${#lists.size(list)}">0</span> classes · <span class="num" th:text="${totalStudents}">0</span> enrollments · <span class="num" th:text="${totalTests}">0</span> tests</div>
+  </div>
+
+  <div class="card flush">
+    <div th:if="${#lists.isEmpty(list)}" class="empty"><b>No classes yet</b>Teachers create classes from their own desk.</div>
+    <table class="t" th:unless="${#lists.isEmpty(list)}">
+      <thead><tr><th>Class</th><th>Code</th><th>Teacher</th><th class="r">Students</th><th class="r">Tests</th><th class="r">Created</th><th class="r">Action</th></tr></thead>
+      <tbody>
+        <tr th:each="c : ${list}">
+          <td><span style="font-weight:500" th:text="${c.name}">Class</span><div class="sub" th:text="${c.subject}">Subject</div></td>
+          <td><span class="roomcode sm num" th:text="${c.code}">K7QPM2</span></td>
+          <td><span th:text="${c.teacher.name}">Teacher</span><div class="sub" th:text="${c.teacher.email}">email</div></td>
+          <td class="r num" th:text="${studentCounts[c.id]}">0</td>
+          <td class="r num" th:text="${testCounts[c.id]}">0</td>
+          <td class="r faint num" th:text="${@fmt.date(c.createdAt)}">date</td>
+          <td class="r">
+            <form th:action="@{/admin/classes/{id}/delete(id=${c.id})}" method="post" onsubmit="return confirm('Delete this class? Students lose access to its tests.')">
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="help mt16">A class can only be deleted once it has no tests left. Removing it clears the enrollment list — students keep their accounts and their submitted results.</p>
+</th:block>
+</body></html>

@@ -134,9 +134,12 @@ Apply to every score, percentage, countdown, question counter, date and class co
 
 - **Desktop sidebar** — `236px`, sticky, `--paper-2` background, right hairline.
   - Brand mark: `28px` rounded square (`7px` radius) in `--board`, custom geometric SVG
-    (line-line-dot; dot is amber) + "Quiz Master" + role label ("Teacher desk" / "Student desk").
+    (line-line-dot; dot is amber) + "Quiz Master" + role label ("Teacher desk" / "Student desk" /
+    "Admin console").
   - Nav groups with eyebrow labels. Teacher: *Teaching* → Overview, Tests, Classes, Results;
     *Department* → Help centre. Student: *Learning* → Available tests, My results.
+    Admin: *Administration* → Overview, Users, Classes, Tests, Attempts; *Reference* → Delete rules.
+    Only one role's nav is ever rendered — `th:if` on `me.role`.
   - Active item: white card fill, `1px --rule` border, `--shadow-card`, icon stroke `--board`.
   - Footer: signed-in name/email + full-width "Sign out" button.
 - **Sticky top bar** — `56px`, `rgba(241,241,240,.85)` + `backdrop-filter: blur(10px)`, bottom hairline.
@@ -183,6 +186,20 @@ Apply to every score, percentage, countdown, question counter, date and class co
   brand row, serif headline *"Six characters and you're in."* (teacher variant: *"Set the paper. Skip the marking."*), one-line description.
 - Right `.auth-form`: `max-width 400px` paper form; register has a 2-segment role switch (`.seg`).
 - Collapses to single column ≤ 900px.
+
+**Admin panel (`admin/*.html`) — paper mode, same shell and tokens**
+- *Overview* (`admin/dashboard.html`): header eyebrow (today) + serif "System overview" with
+  `All attempts` / `Manage users` actions; 4-column KPI strip (Teachers, Students, Classes, Tests
+  with live/draft split), 3-column strip (Attempts submitted, Questions banked, Average score);
+  `.split` → *Latest submissions* + *Newest accounts* tables; rail → *Delete rules* (`#integrity`),
+  *Role split*, *Signed in as*.
+- *Users / Classes / Tests / Attempts*: a single full-width `table.t` inside a `.card.flush`
+  (`.empty` state when the filter matches nothing) with a row of `.btn-sm` filter chips in the header
+  (`th:classappend` to `btn-primary` for the active view).
+- *Test questions* (`admin/test-questions.html`): teacher-detail layout without any editing —
+  `.qitem` rows, `.rail` with *At a glance*, *Owner* and a danger-zone delete.
+- Delete actions are `.btn-sm.btn-danger` inside a per-row `<form method="post">` with a
+  `confirm()` guard; blocked deletions come back as a `.flash-err` with the reason.
 
 **Review (`review.html`) — shared by teacher and student**
 - Left: `.rev` rows — numbered prompt, result pill (Correct / Incorrect / Skipped), 2×2 option grid

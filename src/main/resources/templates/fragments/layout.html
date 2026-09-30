@@ -12,8 +12,21 @@
   <aside class="sidebar">
     <div class="brand">
       <div class="brand-mark"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 12 L8 4 L13 12" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="12" r="1.6" fill="#D98200"/></svg></div>
-      <div><b>Quiz Master</b><span th:text="${me != null and me.role.name() == 'TEACHER'} ? 'Teacher desk' : 'Student desk'">Teacher desk</span></div>
+      <div><b>Quiz Master</b><span th:text="${me != null and me.role.name() == 'ADMIN' ? 'Admin console' : (me != null and me.role.name() == 'TEACHER' ? 'Teacher desk' : 'Student desk')}">Teacher desk</span></div>
     </div>
+
+    <nav class="nav" th:if="${me != null and me.role.name() == 'ADMIN'}">
+      <div class="nav-group"><div class="eyebrow">Administration</div>
+        <a th:href="@{/admin/dashboard}" th:classappend="${nav=='overview'}?'active'"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>Overview</a>
+        <a th:href="@{/admin/users}" th:classappend="${nav=='users'}?'active'"><svg viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17" cy="9" r="2.5"/><path d="M15.5 14.5a5 5 0 0 1 6 5"/></svg>Users</a>
+        <a th:href="@{/admin/classes}" th:classappend="${nav=='classes'}?'active'"><svg viewBox="0 0 24 24"><path d="M3 6h18v13H3z"/><path d="M3 10h18M8 6V3m8 3V3"/></svg>Classes</a>
+        <a th:href="@{/admin/tests}" th:classappend="${nav=='tests'}?'active'"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6z"/><path d="M9 12h6M9 16h6M9 8h3"/></svg>Tests</a>
+        <a th:href="@{/admin/attempts}" th:classappend="${nav=='attempts'}?'active'"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Attempts</a>
+      </div>
+      <div class="nav-group"><div class="eyebrow">Reference</div>
+        <a href="#integrity"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .8-1 1.5M12 17h.01"/></svg>Delete rules</a>
+      </div>
+    </nav>
 
     <nav class="nav" th:if="${me != null and me.role.name() == 'TEACHER'}">
       <div class="nav-group"><div class="eyebrow">Teaching</div>
@@ -52,6 +65,14 @@
       <a th:href="@{/teacher/tests}" th:classappend="${nav=='tests'}?'active'">Tests</a>
       <a th:href="@{/teacher/classes}" th:classappend="${nav=='classes'}?'active'">Classes</a>
       <a th:href="@{/teacher/results}" th:classappend="${nav=='results'}?'active'">Results</a>
+      <form th:action="@{/logout}" method="post" style="margin-left:auto"><button class="btn btn-sm btn-ghost">Sign out</button></form>
+    </nav>
+    <nav class="mobile-nav" th:if="${me != null and me.role.name() == 'ADMIN'}">
+      <a th:href="@{/admin/dashboard}" th:classappend="${nav=='overview'}?'active'">Overview</a>
+      <a th:href="@{/admin/users}" th:classappend="${nav=='users'}?'active'">Users</a>
+      <a th:href="@{/admin/classes}" th:classappend="${nav=='classes'}?'active'">Classes</a>
+      <a th:href="@{/admin/tests}" th:classappend="${nav=='tests'}?'active'">Tests</a>
+      <a th:href="@{/admin/attempts}" th:classappend="${nav=='attempts'}?'active'">Attempts</a>
       <form th:action="@{/logout}" method="post" style="margin-left:auto"><button class="btn btn-sm btn-ghost">Sign out</button></form>
     </nav>
     <nav class="mobile-nav" th:if="${me != null and me.role.name() == 'STUDENT'}">

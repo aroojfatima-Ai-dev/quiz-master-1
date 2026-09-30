@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{fragments/layout :: page('Users', ~{::content})}">
+<body>
+<th:block th:fragment="content">
+  <div class="row between wrap mb16">
+    <div><div class="eyebrow">Administration</div><h1 class="serif page-title">Users</h1></div>
+    <div class="row wrap">
+      <a class="btn btn-sm" th:classappend="${role=='ALL'}?'btn-primary':''" th:href="@{/admin/users}">All <span class="num" th:text="${total}">0</span></a>
+      <a class="btn btn-sm" th:classappend="${role=='TEACHER'}?'btn-primary':''" th:href="@{/admin/users(role='TEACHER')}">Teachers <span class="num" th:text="${teacherCount}">0</span></a>
+      <a class="btn btn-sm" th:classappend="${role=='STUDENT'}?'btn-primary':''" th:href="@{/admin/users(role='STUDENT')}">Students <span class="num" th:text="${studentCount}">0</span></a>
+      <a class="btn btn-sm" th:classappend="${role=='ADMIN'}?'btn-primary':''" th:href="@{/admin/users(role='ADMIN')}">Admins <span class="num" th:text="${adminCount}">0</span></a>
+    </div>
+  </div>
+
+  <div class="card flush">
+    <div th:if="${#lists.isEmpty(list)}" class="empty"><b>No accounts in this view</b>Try another role filter.</div>
+    <table class="t" th:unless="${#lists.isEmpty(list)}">
+      <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Owns</th><th class="r">Created</th><th class="r">Action</th></tr></thead>
+      <tbody>
+        <tr th:each="u : ${list}">
+          <td class="faint num" th:text="${u.id}">1</td>
+          <td>
+            <span style="font-weight:500" th:text="${u.name}">Name</span>
+            <span class="pill pill-info" style="margin-left:6px" th:if="${u.id == me.id}">you</span>
+          </td>
+          <td class="muted" th:text="${u.email}">email</td>
+          <td><span class="pill" th:classappend="${u.role.name()=='ADMIN'}?'pill-live':(${u.role.name()=='TEACHER'}?'pill-info':'pill-neutral')" th:text="${#strings.capitalize(#strings.toLowerCase(u.role.name()))}">Role</span></td>
+          <td class="sub" style="margin-top:0" th:text="${footprint[u.id]}">0 classes · 0 tests</td>
+          <td class="r faint num" th:text="${@fmt.date(u.createdAt)}">date</td>
+          <td class="r">
+            <form th:if="${u.id != me.id and u.role.name() != 'ADMIN'}" th:action="@{/admin/users/{id}/delete(id=${u.id})}" method="post" onsubmit="return confirm('Delete this account? Their enrollments and attempts are removed with it.')">
+              <button class="btn btn-sm btn-danger">Delete</button>
+            </form>
+            <span class="faint" th:if="${u.id == me.id or u.role.name() == 'ADMIN'}">—</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="help mt16">Deleting a student also clears their class memberships and every attempt they made. A teacher can only be deleted once the classes and tests they own are gone — otherwise the panel blocks it and tells you what is left.</p>
+</th:block>
+</body></html>
