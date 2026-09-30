@@ -19,6 +19,15 @@ mvn spring-boot:run          # uses embedded H2 file DB in ./data
 # open http://localhost:8080
 ```
 
+No Maven installed? Use the bundled Maven Wrapper (it fetches Maven itself on first run):
+```bash
+./mvnw spring-boot:run                 # Windows: mvnw.cmd spring-boot:run
+```
+Or the one-click helpers — `run-local.bat` (Windows, double-click) / `./run-local.sh` (macOS, Linux).
+
+Step-by-step instructions (Roman Urdu + English), including the admin login, ports, settings and
+troubleshooting, live in **[LOCAL-SETUP.md](LOCAL-SETUP.md)**.
+
 ## Deploy on Railway (MySQL)
 1. Push this folder to a GitHub repo.
 2. Railway → **New Project → Deploy from GitHub repo**. The `Dockerfile` is detected automatically (`railway.toml` included).
